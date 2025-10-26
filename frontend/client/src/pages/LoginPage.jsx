@@ -5,7 +5,7 @@ const LoginPage = () => {
       password : ""
     })
     const handleSubmit = () =>{
-      console.alert("You are loggin")      
+          alert("You are loggin")      
     }
   return <div>
     <div className="signup-container">
