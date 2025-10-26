@@ -32,7 +32,7 @@ const LoginPage = () => {
           }
           required
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit">Sign in</button>
       </form>
     </div>
   </div>;
