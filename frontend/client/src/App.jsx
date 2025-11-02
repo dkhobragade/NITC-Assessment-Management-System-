@@ -5,6 +5,9 @@ import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ToastContainer } from 'react-toastify';
+import FacultyDashboard from "./pages/FacultyDashboard";
+import EvaluatorDashboard from "./pages/EvaluatorDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 
 function App ()
 {
@@ -15,6 +18,9 @@ function App ()
         <Route path="/signup" element={ <SignupPage /> } />
         <Route path="/login" element={ <LoginPage /> } />
         <Route path="/admindashboard" element={ <AdminDashboard /> } />
+        <Route path="/facultydashboard" element={ <FacultyDashboard /> } />
+        <Route path="/evaluatordashboard" element={ <EvaluatorDashboard /> } />
+        <Route path="/studentdashboard" element={ <StudentDashboard /> } />
         <Route path="*" element={ <LandingPage /> } />
       </Routes>
       <ToastContainer />
