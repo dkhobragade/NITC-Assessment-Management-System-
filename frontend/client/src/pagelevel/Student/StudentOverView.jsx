@@ -1,6 +1,6 @@
 const StudentOverView = () =>
 {
-    return <></>
+    return <>S Overview</>
 }
 
 export default StudentOverView

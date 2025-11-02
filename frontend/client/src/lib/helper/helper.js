@@ -12,3 +12,17 @@ export const adminSidebar = [
   "Manage Course",
   "Generate Report"
 ];
+
+
+export const facultySidebar=[
+  "Overview",
+  "Create Task",
+  "Map Evalutor",
+  "Generate Report"
+]
+
+export const studentSidebar=[
+  'Overview',
+  "Result",
+  "Task"
+]

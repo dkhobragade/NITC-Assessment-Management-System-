@@ -1,6 +1,6 @@
 const Results = () =>
 {
-    return <></>
+    return <>Result</>
 }
 
 export default Results

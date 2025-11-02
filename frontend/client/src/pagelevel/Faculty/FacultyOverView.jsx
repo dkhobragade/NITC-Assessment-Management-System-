@@ -1,6 +1,6 @@
 const FacultyOverView = () =>
 {
-    return <></>
+    return <>OverView</>
 }
 
 export default FacultyOverView
