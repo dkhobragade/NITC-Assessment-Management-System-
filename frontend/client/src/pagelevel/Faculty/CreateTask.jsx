@@ -1,6 +1,145 @@
+import { useState } from "react";
+import { toast } from "react-toastify";
+
 const CreateTask = () =>
 {
-    return <>Task</>
+
+    const [ task, setTask ] = useState( {
+        title: "",
+        description: "",
+        dueDate: "",
+    } );
+
+    const handleChange = ( e ) =>
+    {
+        setTask( { ...task, [ e.target.name ]: e.target.value } );
+    };
+
+    const handleSubmit = ( e ) =>
+    {
+        e.preventDefault();
+        toast.success( "Task created successfully!" )
+        setTask( {
+            title: '',
+            description: '',
+            dueDate: ''
+        } )
+    };
+
+    return <>
+        <div
+            style={ {
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            } }
+        >
+            <div
+                style={ {
+                    backgroundColor: "white",
+                    padding: "30px",
+                    borderRadius: "15px",
+                    boxShadow: "0 0 15px rgba(0,0,0,0.1)",
+                    width: "400px",
+                } }
+            >
+                <h2
+                    style={ {
+                        textAlign: "center",
+                        marginBottom: "25px",
+                        fontSize: "24px",
+                        color: "#333",
+                    } }
+                >
+                    Create New Task
+                </h2>
+
+                <form onSubmit={ handleSubmit }>
+                    <div style={ { marginBottom: "15px" } }>
+                        <label style={ { display: "block", fontWeight: "bold", marginBottom: "5px" } }>
+                            Task Title
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            value={ task.title }
+                            onChange={ handleChange }
+                            placeholder="Enter task title"
+                            required
+                            style={ {
+                                width: "100%",
+                                padding: "8px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                            } }
+                        />
+                    </div>
+
+                    <div style={ { marginBottom: "15px" } }>
+                        <label style={ { display: "block", fontWeight: "bold", marginBottom: "5px" } }>
+                            Description
+                        </label>
+                        <textarea
+                            name="description"
+                            value={ task.description }
+                            onChange={ handleChange }
+                            placeholder="Enter task description"
+                            rows="3"
+                            required
+                            style={ {
+                                width: "100%",
+                                padding: "8px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                                resize: "none",
+                            } }
+                        />
+                    </div>
+
+                    <div style={ { marginBottom: "20px" } }>
+                        <label style={ { display: "block", fontWeight: "bold", marginBottom: "5px" } }>
+                            Due Date
+                        </label>
+                        <input
+                            type="date"
+                            name="dueDate"
+                            value={ task.dueDate }
+                            onChange={ handleChange }
+                            required
+                            style={ {
+                                width: "100%",
+                                padding: "8px",
+                                borderRadius: "8px",
+                                border: "1px solid #ccc",
+                                fontSize: "14px",
+                            } }
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        style={ {
+                            width: "100%",
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            padding: "10px",
+                            fontSize: "16px",
+                            border: "none",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                        } }
+                        onMouseOver={ ( e ) => ( e.target.style.backgroundColor = "#0056b3" ) }
+                        onMouseOut={ ( e ) => ( e.target.style.backgroundColor = "#007bff" ) }
+                    >
+                        Create Task
+                    </button>
+                </form>
+            </div>
+        </div>
+    </>
 }
 
 export default CreateTask
