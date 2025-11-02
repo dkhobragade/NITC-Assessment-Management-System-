@@ -1,6 +1,6 @@
 const CreateTask = () =>
 {
-    return <></>
+    return <>Task</>
 }
 
 export default CreateTask

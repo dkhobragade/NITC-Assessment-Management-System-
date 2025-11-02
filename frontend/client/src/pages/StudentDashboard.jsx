@@ -1,9 +1,46 @@
+import { useState } from "react"
 import Header from "../lowlevel/header"
+import StudentSideBar from "../pagelevel/Student/SideBar"
+import { studentSidebar } from "../lib/helper/helper"
 
 const StudentDashboard = () =>
 {
+    const [ selected, setSelected ] = useState( "Overview" );
+
     return <>
         <Header />
+        <div style={ { display: "flex" } }>
+            <div
+                style={ {
+                    width: "15%",
+                    height: "100vh",
+                    padding: "10px",
+                } }
+            >
+                { studentSidebar.map( ( item ) => (
+                    <div
+                        key={ item }
+                        className="sidebar"
+                        onClick={ () => setSelected( item ) }
+                        style={ {
+                            backgroundColor: selected === item ? "#007bff" : "transparent",
+                            color: selected === item ? "white" : "#333",
+                            transform: selected === item ? "translateY(-5px)" : "none",
+                            boxShadow:
+                                selected === item
+                                    ? "0px 4px 10px rgba(0,0,0,0.2)"
+                                    : "none",
+                        } }
+                    >
+                        { item }
+                    </div>
+                ) ) }
+            </div>
+
+            <div style={ { width: "85%", padding: '10px' } }>
+                <StudentSideBar selectedType={ selected } />
+            </div >
+        </div >
     </>
 }
 

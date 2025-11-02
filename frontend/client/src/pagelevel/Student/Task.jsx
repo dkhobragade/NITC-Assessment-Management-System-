@@ -1,6 +1,6 @@
 const Task = () =>
 {
-    return <></>
+    return <>Task</>
 }
 
 export default Task

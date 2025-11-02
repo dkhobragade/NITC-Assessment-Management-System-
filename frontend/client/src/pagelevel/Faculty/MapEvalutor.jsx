@@ -1,6 +1,6 @@
 const MapEvalutor = () =>
 {
-    return <></>
+    return <>Map</>
 }
 
 export default MapEvalutor

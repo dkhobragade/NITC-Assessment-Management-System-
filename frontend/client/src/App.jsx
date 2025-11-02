@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
 import LandingPage from "../src/pages/LandingPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
@@ -8,6 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import FacultyDashboard from "./pages/FacultyDashboard";
 import EvaluatorDashboard from "./pages/EvaluatorDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
+import "./App.css";
 
 function App ()
 {
