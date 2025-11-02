@@ -1,41 +1,81 @@
 import { useState } from "react";
-const LoginPage = () => {
-    const [formData, setFormData] = useState({
-      email : "",
-      password : ""
-    })
-   const handleSubmit = (e) => {
-    e.preventDefault(); 
-    alert(`You are logging in with ${formData.email}`);
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import { roleType } from "../lib/store/userAtom";
+
+const LoginPage = () =>
+{
+  const [ formData, setFormData ] = useState( {
+    email: "",
+    password: ""
+  } );
+
+  const [ roleTypeValue ] = useAtom( roleType )
+
+  const navigate = useNavigate();
+
+  const handleChange = ( e ) =>
+  {
+    setFormData( { ...formData, [ e.target.name ]: e.target.value } );
   };
-  return <div>
-    <div>
-      <form onSubmit={handleSubmit}>
+
+  const handleSubmit = ( e ) =>
+  {
+    e.preventDefault();
+
+    if ( !formData.email.trim() )
+    {
+      toast.warning( "Please enter your email" );
+      return;
+    }
+    if ( !formData.password.trim() )
+    {
+      toast.warning( "Please enter your password" );
+      return;
+    }
+
+    console.log( "Login data:", formData );
+  };
+
+
+
+  const onClickSignIn = () =>
+  {
+    navigate( "/signup" )
+  }
+
+  return (
+    <div className="signup-container">
+      <form className="signup-form" onSubmit={ handleSubmit }>
         <h2>Log In</h2>
+        <p>(for { roleTypeValue })</p>
         <input
           type="email"
           name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={(e) =>
-            setFormData({ ...formData, email: e.target.value })
-          }
+          placeholder="Email"
+          value={ formData.email }
+          onChange={ handleChange }
           required
         />
         <input
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
-           onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
+          value={ formData.password }
+          onChange={ handleChange }
           required
         />
-        <button type="submit">Sign in</button>
+        <button type="submit">Log In</button>
+        <p style={ { marginTop: "1rem", textAlign: "center" } }>
+          Create an account?{ " " }
+          <div onClick={ onClickSignIn } style={ { color: "blue", textDecoration: "underline", cursor: 'pointer' } }>
+            Signup
+          </div>
+        </p>
       </form>
     </div>
-  </div>;
+  );
 };
 
 export default LoginPage;
