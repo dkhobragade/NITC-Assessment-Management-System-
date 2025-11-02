@@ -5,3 +5,10 @@ export const selectedRoleName = (value) =>
     else if ( value === "student" ) return  "Student"
     else return  "Admin"
   };
+
+export const adminSidebar = [
+  "Overview",
+  "Manage Faculty",
+  "Manage Course",
+  "Generate Report"
+];
