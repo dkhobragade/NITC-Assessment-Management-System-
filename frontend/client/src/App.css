@@ -1,7 +1,6 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -66,6 +65,25 @@
   transition: all 0.3s ease;
   cursor: pointer;
   margin: auto;
+}
+
+.sidebar{
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-bottom:50px ;
+}
+
+.sidebar:hover{
+  background-color: #007bff;
+  color: white;
+  transform: translateY(-5px);
 }
 
 .box:hover {
