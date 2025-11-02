@@ -58,6 +58,9 @@ It provides a centralized system for faculty members to create evaluation tasks,
 - **Database:** MongoDB
 - **Authentication:** Email-based (NITC domain validation)
 - **File Handling:** CSV & Excel support (Pandas / SheetJS)
+- **Password hashing:** bcryptjs
+- **User authentication & authorization:** jsonwebtoken (JWT)
+- **Cookie management:** cookie-parser
 
 ---
 
