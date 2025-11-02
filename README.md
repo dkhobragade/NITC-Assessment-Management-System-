@@ -1,7 +1,7 @@
 # NITC Assessment Management System
 
 ## 📌 Project Overview
-The **NITC Assessment Management System** is a generalized platform designed to plan, organize, and conduct academic evaluations such as lab assessments, project reviews, and admission tests at NITC.  
+The **NITC Assessment Management System** is a generalized platform designed to plan, organize, and conduct academic evaluations such as lab assessments, project reviews, and admission tests at NITC.
 It provides a centralized system for faculty members to create evaluation tasks, assign evaluators, manage candidate details, and generate automated reports.
 
 ---
@@ -53,20 +53,27 @@ It provides a centralized system for faculty members to create evaluation tasks,
 ---
 
 ## 🛠️ Technology Stack (Suggested)
-- **Frontend:** React.js / Vue.js  
-- **Backend:**  Node.js (JavaScript)  
-- **Database:** MongoDB  
-- **Authentication:** Email-based (NITC domain validation)  
-- **File Handling:** CSV & Excel support (Pandas / SheetJS)  
+- **Frontend:** React.js / Vue.js
+- **Backend:**  Node.js (JavaScript)
+- **Database:** MongoDB
+- **Authentication:** Email-based (NITC domain validation)
+- **File Handling:** CSV & Excel support (Pandas / SheetJS)
 
 ---
+
+## Dependinces
+- **Environment_Variables:**  dotenv
+- **Database:**  MongoDb - mongoose
+- **Global State Management:**  Jotai
+- **Toastify:**  React-Toastify
+
 
 ## 🚀 Installation & Setup
 ### Prerequisites
 - MongoDB
 - Git
 - React
-- 
+-
 
 ### Steps
 ```bash
