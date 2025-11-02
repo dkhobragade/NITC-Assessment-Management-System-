@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import { roleType } from "../lib/store/userAtom";
 
 const LoginPage = () =>
 {
@@ -8,6 +10,8 @@ const LoginPage = () =>
     email: "",
     password: ""
   } );
+
+  const [ roleTypeValue ] = useAtom( roleType )
 
   const navigate = useNavigate();
 
@@ -38,14 +42,14 @@ const LoginPage = () =>
 
   const onClickSignIn = () =>
   {
-    navigate( "/login" )
+    navigate( "/signup" )
   }
 
   return (
     <div className="signup-container">
       <form className="signup-form" onSubmit={ handleSubmit }>
         <h2>Log In</h2>
-
+        <p>(for { roleTypeValue })</p>
         <input
           type="email"
           name="email"
@@ -65,7 +69,7 @@ const LoginPage = () =>
         <button type="submit">Log In</button>
         <p style={ { marginTop: "1rem", textAlign: "center" } }>
           Create an account?{ " " }
-          <div onClick={ onClickSignIn } style={ { color: "blue", textDecoration: "underline", } }>
+          <div onClick={ onClickSignIn } style={ { color: "blue", textDecoration: "underline", cursor: 'pointer' } }>
             Signup
           </div>
         </p>

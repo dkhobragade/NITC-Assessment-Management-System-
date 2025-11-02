@@ -11,6 +11,6 @@ export const userAtom =atom({
 })
 
 
-export const roleType=atom(0)
+export const roleType=atom('Admin')
 
 

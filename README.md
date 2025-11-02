@@ -63,7 +63,7 @@ It provides a centralized system for faculty members to create evaluation tasks,
 
 ## Dependinces
 - **Environment_Variables:**  dotenv
-- **Database:**  MongoDb
+- **Database:**  MongoDb - mongoose
 - **Global State Management:**  Jotai
 - **Toastify:**  React-Toastify
 

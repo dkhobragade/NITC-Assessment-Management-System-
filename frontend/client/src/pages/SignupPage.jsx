@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
@@ -14,20 +14,6 @@ const SignupPage = () =>
   } );
   const navigate = useNavigate()
   const [ roleTypeValue ] = useAtom( roleType );
-  const [ roleName, setRoleName ] = useState( "Admin" );
-
-  useEffect( () =>
-  {
-    selectedRoleName();
-  }, [ roleTypeValue ] );
-
-  const selectedRoleName = () =>
-  {
-    if ( roleTypeValue === 1 ) setRoleName( "Faculty" );
-    else if ( roleTypeValue === 2 ) setRoleName( "Evaluator" );
-    else if ( roleTypeValue === 3 ) setRoleName( "Student" );
-    else setRoleName( "Admin" );
-  };
 
   const handleChange = ( e ) =>
   {
@@ -76,7 +62,7 @@ const SignupPage = () =>
     <div className="signup-container">
       <form className="signup-form" onSubmit={ handleSubmit }>
         <h2>Signup</h2>
-        <p>(for { roleName })</p>
+        <p>(for { roleTypeValue })</p>
         <input
           type="text"
           name="name"

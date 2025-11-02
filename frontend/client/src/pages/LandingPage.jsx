@@ -13,19 +13,19 @@ const landingPage = () =>
   {
     if ( role == "admin" )
     {
-      setRoleType( 0 )
+      setRoleType( "Admin" )
     }
     else if ( role == "faculty" )
     {
-      setRoleType( 1 )
+      setRoleType( "Faculty" )
     }
     else if ( role == "evaluator" )
     {
-      setRoleType( 2 )
+      setRoleType( "Evaluator" )
     }
     else if ( role == "student" )
     {
-      setRoleType( 3 )
+      setRoleType( "Student" )
     }
     navigate( "/signup" )
   }
