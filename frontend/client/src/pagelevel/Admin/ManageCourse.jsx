@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { postWrapper } from "../../lib/api/postWrapper";
 
 const ManageCourse = () =>
 {
     const [ faculty, setFaculty ] = useState( '' );
     const [ course, setCourse ] = useState( '' );
-    const [ enrollmentCode, setEnrollmentCode ] = useState( '' );
+    const [ courseName, setCourseName ] = useState( '' );
+    const [ courseCode, setCourseCode ] = useState( '' );
 
 
     const facultyList = [ 'John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown' ];
@@ -15,32 +17,97 @@ const ManageCourse = () =>
     const handleSubmit = ( e ) =>
     {
         e.preventDefault();
-        if ( faculty && course )
+        if ( !faculty )
         {
-            toast.success( `Assigned ${ course } to ${ faculty } ` )
-            setFaculty( '' );
-            setCourse( '' );
-        } else
+            toast.error( 'Please Select the faculty' )
+            return
+        } else if ( !course )
         {
-            toast.error( "Please fill all fields before submitting." )
+            toast.error( "Please select the course" )
+            return
         }
+
+        postWrapper( 'adminAuth/adminAssignCourse', {
+            faculty: faculty,
+            course: course
+        } ).then( ( resp ) =>
+        {
+            if ( resp.message )
+            {
+                toast.success( resp.message )
+            }
+        } ).catch( ( resp ) =>
+        {
+            toast.error( resp.message )
+        } ).finally( () =>
+        {
+            setFaculty( '' )
+            setCourse( '' )
+        } )
     };
+
+    const handleAddCourse = () =>
+    {
+        postWrapper( 'adminAuth/adminAddCourses', {
+            courseName: courseName,
+            courseCode: courseCode
+        } ).then( ( resp ) =>
+        {
+
+            if ( resp.message )
+            {
+                toast.success( resp.message )
+            }
+        } ).catch( ( resp ) =>
+        {
+            toast.error( resp.message )
+        } ).finally( () =>
+        {
+            setCourseCode( '' )
+            setCourseName( '' )
+        } )
+    }
 
     return <div>
         <h3>Add Course</h3>
         <div style={ { display: 'flex', gap: '10px', justifySelf: 'center' } }>
             <input
                 type="text"
-                value={ enrollmentCode }
-                onChange={ ( e ) => setEnrollmentCode( e.target.value ) }
+                value={ courseName }
+                onChange={ ( e ) => setCourseName( e.target.value ) }
                 placeholder="Course Name"
-                style={ { padding: '8px', borderRadius: '5px', border: '1px solid #ccc', width: '200px' } }
+                style={ {
+                    padding: '8px',
+                    borderRadius: '5px',
+                    border: '1px solid #ccc',
+                    width: '200px',
+                } }
             />
 
+            <input
+                type="text"
+                value={ courseCode }
+                onChange={ ( e ) => setCourseCode( e.target.value ) }
+                placeholder="Course Code"
+                style={ {
+                    padding: '8px',
+                    borderRadius: '5px',
+                    border: '1px solid #ccc',
+                    width: '200px',
+                } }
+            />
 
             <button
                 type="submit"
-                style={ { padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' } }
+                style={ {
+                    padding: '8px 16px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                } }
+                onClick={ handleAddCourse }
             >
                 Add Course
             </button>

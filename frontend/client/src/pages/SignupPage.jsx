@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { roleType } from "../lib/store/userAtom";
 import { postWrapper } from "../lib/api/postWrapper";
+import { roleEndpoints } from "../lib/helper/helper";
 
 const SignupPage = () =>
 {
@@ -53,66 +54,30 @@ const SignupPage = () =>
       return;
     }
 
-    if ( roleTypeValue == "Admin" )
-    {
-      postWrapper( 'adminAuth/adminSignup', {
-        fullName: formData.name,
-        email: formData.email,
-        id: formData.id,
-        password: formData.password
-      } ).then( ( resp ) =>
-      {
+    const endpoint = roleEndpoints[ roleTypeValue ];
 
-        if ( resp.message )
-        {
-          toast.success( resp.message )
-          navigate( '/admindashboard' )
-        }
 
-      } ).catch( ( resp ) =>
-      {
-        toast.error( resp.message )
-      } ).finally( () =>
-      {
-        setFormData( {
-          email: '',
-          fullName: '',
-          id: '',
-          password: ''
-        } )
-      } )
-    }
-    else if ( roleTypeValue == "Faculty" )
+    postWrapper( endpoint, {
+      fullName: formData.name,
+      email: formData.email,
+      id: formData.id,
+      password: formData.password,
+    } ).then( ( resp ) =>
     {
 
-      postWrapper( 'facultyAuth/facultySignup', {
-        fullName: formData.name,
-        email: formData.email,
-        id: formData.id,
-        password: formData.password
-      } ).then( ( resp ) =>
+      if ( resp?.message )
       {
+        toast.success( resp.message );
+        navigate( roleTypeValue === "Admin" ? "/admindashboard" : "/login" );
+      }
+    } ).catch( () =>
+    {
+      toast.error( error?.message || "Something went wrong" );
+    } ).finally( () =>
+    {
+      setFormData( { name: "", email: "", password: "", id: "" } );
+    } )
 
-        if ( resp.message )
-        {
-          toast.success( resp.message )
-          navigate( '/' )
-        }
-
-      } ).catch( ( resp ) =>
-      {
-        toast.error( resp.message )
-      } ).finally( () =>
-      {
-        setFormData( {
-          email: '',
-          fullName: '',
-          id: '',
-          password: ''
-        } )
-      } )
-
-    }
   }
 
   const onClickLogin = () =>

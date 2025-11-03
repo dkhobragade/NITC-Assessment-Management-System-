@@ -2,6 +2,8 @@ import AdminUser from "../../models/AdminUser.js";
 import FacultyUser from "../../models/FacultyUser.js";
 import bcrypt from 'bcryptjs'
 import { generateToken } from "../../utils/utils.js";
+import { Course } from "../../models/Courses.js";
+import { AssignedCourse } from "../../models/assignedCourse.js";
 
 
 export const adminSignup = async ( req, res ) =>
@@ -145,4 +147,99 @@ export const getAllFacultyData=async(req,res)=>{
     console.log("Error while getting all user", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+
+export const getAllCourseData=async(req,res)=>{
+
+  try {
+    const assignedCourses = await AssignedCourse.find();
+
+    if (!assignedCourses || assignedCourses.length === 0) {
+      return res.status(404).json({ message: "No assigned courses found" });
+    }
+
+    // For each assignment, fetch faculty name from FacultyUser collection
+    const result = await Promise.all(
+      assignedCourses.map(async (record) => {
+        const faculty = await FacultyUser.findOne({ _id: record.faculty });
+
+        return {
+          facultyName: faculty ? faculty.fullName : "Unknown Faculty",
+          courseName: record.course,
+          assignedAt: record.createdAt,
+        };
+      })
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error while getting assigned course data:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+
+export const assignCourse=async(req,res)=>{
+  const { faculty, course } = req.body;
+
+  try{
+
+    if (!faculty || !course) {
+      return res.status(400).json({ message: "Faculty and Course are required" });
+    }
+
+    const existingAssignment = await AssignedCourse.findOne({ faculty, course });
+    if (existingAssignment) {
+      return res.status(400).json({ message: "This course is already assigned to the faculty" });
+    }
+
+    const newAssignment = new AssignedCourse({ faculty, course });
+    await newAssignment.save();
+
+      res.status(201).json({
+      message: "Course assigned successfully",
+      data: newAssignment,
+    });
+
+  }
+  catch(error){
+    console.log("Error while getting all user", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+
+}
+
+
+export const addCourses=async(req,res)=>{
+
+  const { courseName, courseCode } = req.body;
+
+  try{
+
+    if (!courseName || !courseCode ) {
+      return res.status(400).json({ message: "All required fields must be provided." });
+    }
+
+    const existingCourse = await Course.findOne({ courseCode });
+
+    if (existingCourse) {
+      return res.status(400).json({ message: "Course with this code already exists." });
+    }
+
+    const newCourse = new Course({
+      courseName,
+      courseCode
+    });
+
+    await newCourse.save();
+
+    res.status(201).json({ message: "Course added successfully!", course: newCourse });
+
+  }
+  catch(error){
+    console.log("Error while getting all user", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+
 }

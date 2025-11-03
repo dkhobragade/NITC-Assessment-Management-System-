@@ -24,5 +24,35 @@ export const facultySidebar=[
 export const studentSidebar=[
   'Overview',
   "Result",
-  "Task"
 ]
+
+export const roleEndpoints = {
+    Admin: "adminAuth/adminSignup",
+    Faculty: "facultyAuth/facultySignup",
+    Evaluator: "evalutorAuth/evalutorSignup",
+    Student: "studentAuth/studentSignup",
+};
+
+
+ export const roleConfig = {
+    Admin: {
+      endpoint: "adminAuth/adminLogin",
+      redirect: "/admindashboard",
+      pendingMessage: null,
+    },
+    Faculty: {
+      endpoint: "facultyAuth/facultyLogin",
+      redirect: "/facultydashboard",
+      pendingMessage: "Your account is not approved by admin yet. Please wait.",
+    },
+    Evaluator: {
+      endpoint: "evalutorAuth/evalutorLogin",
+      redirect: "/evaluatordashboard",
+      pendingMessage: "Your account is not approved by faculty yet. Please wait.",
+    },
+    Student: {
+      endpoint: "studentAuth/studentLogin",
+      redirect: "/studentdashboard",
+      pendingMessage: "Your account is not approved by evalutor yet. Please wait.",
+    },
+  };

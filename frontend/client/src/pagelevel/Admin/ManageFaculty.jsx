@@ -5,7 +5,7 @@ import { postWrapper } from "../../lib/api/postWrapper";
 
 export default function AdminUsersTable ()
 {
-    const [ users, setUsers ] = useState( [] );
+    const [ faculty, setFaculty ] = useState( [] );
 
     useEffect( () =>
     {
@@ -18,7 +18,7 @@ export default function AdminUsersTable ()
             .then( ( resp ) =>
             {
                 console.log( "Faculty Data:", resp );
-                setUsers( resp );
+                setFaculty( resp );
             } )
             .catch( ( err ) =>
             {
@@ -49,7 +49,7 @@ export default function AdminUsersTable ()
             getAllFacultyData();
             return;
         }
-        setUsers( ( prev ) =>
+        setFaculty( ( prev ) =>
             prev.filter(
                 ( u ) =>
                     u.fullName.toLowerCase().includes( query ) ||
@@ -86,8 +86,8 @@ export default function AdminUsersTable ()
                     </tr>
                 </thead>
                 <tbody>
-                    { users.length > 0 ? (
-                        users.map( ( user ) => (
+                    { faculty.length > 0 ? (
+                        faculty.map( ( user ) => (
                             <tr key={ user._id } style={ { borderBottom: "1px solid #ddd" } }>
                                 <td style={ cellStyle }>{ user.fullName }</td>
                                 <td style={ cellStyle }>{ user.id }</td>

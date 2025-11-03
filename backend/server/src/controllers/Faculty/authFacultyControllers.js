@@ -1,6 +1,8 @@
 import { generateToken } from "../../utils/utils.js";
 import FacultyUser from "../../models/FacultyUser.js";
 import bcryptjs from 'bcryptjs'
+import { Task } from "../../models/Task.js";
+import EvalutorUser from "../../models/EvalutorUser.js";
 
 export const facultySignup = async (req, res) => {
   const { fullName, email, id, password } = req.body;
@@ -103,3 +105,69 @@ export const facultyLogout = async ( req, res ) => {
   }
 
  }
+
+
+export const createdTask=async(req,res)=>{
+  const { title, description, dueDate } = req.body;
+
+  try{
+
+    if (!title || !description || !dueDate) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+      const newTask = await Task.create({
+      title,
+      description,
+      dueDate,
+      createdBy: req.user ? req.user._id : null,
+    });
+
+
+    return res
+      .status(201)
+      .json({ message: "Task created successfully", task: newTask });
+
+  }
+  catch(error){
+    console.log("Error in Creating Task", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+
+export const approveEvalutor = async (req, res) => {
+  const { evalutorId } = req.body;
+
+  try {
+    const evalutor = await EvalutorUser.findOne({ id: evalutorId });
+    if (!evalutor) return res.status(404).json({ message: "evalutor not found" });
+
+    evalutor.approved = true;
+    await evalutor.save();
+
+    res.status(200).json({ message: "evalutor approved successfully" });
+  } catch (error) {
+    console.error("Error approving evalutor:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getAllEvalutorData=async(req,res)=>{
+
+  try{
+
+    const getEvalutorData = await  EvalutorUser.find()
+
+    if (!getEvalutorData || getEvalutorData.length == 0) {
+      return res.status(404).json({ message: "No user available" });
+    }
+
+    return res.status(200).json(getEvalutorData);
+
+  }
+  catch(error){
+    console.log("Error while getting all user", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
