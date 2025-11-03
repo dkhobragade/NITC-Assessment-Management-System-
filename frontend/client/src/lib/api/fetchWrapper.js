@@ -1,9 +1,6 @@
 import { BASEURL } from "../constant";
 
-export async function fetchWrapper(
-  path: string,
-  options: RequestInit = {}
-): Promise<any> {
+export async function fetchWrapper(path, options = {}) {
   const response = await fetch(`${BASEURL}${path}`, {
     method: options.method || "GET",
     ...options,
@@ -20,5 +17,6 @@ export async function fetchWrapper(
       `HTTP error! status: ${response.status}, message: ${errorText}`
     );
   }
+
   return response.json();
 }

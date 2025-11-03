@@ -1,6 +1,6 @@
 import { BASEURL } from "../constant.js";
 
-export async function postWrapper(path: string, body?: any): Promise<any> {
+export async function postWrapper(path, body) {
   const response = await fetch(`${BASEURL}${path}`, {
     method: "POST",
     headers: {

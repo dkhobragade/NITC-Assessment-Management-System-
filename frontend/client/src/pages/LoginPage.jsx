@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { roleType } from "../lib/store/userAtom";
+import { postWrapper } from "../lib/api/postWrapper";
 
 const LoginPage = () =>
 {
@@ -35,7 +36,64 @@ const LoginPage = () =>
       return;
     }
 
-    console.log( "Login data:", formData );
+    if ( roleTypeValue == "Admin" )
+    {
+
+      postWrapper( 'adminAuth/adminLogin', {
+        email: formData.email,
+        password: formData.password
+      } ).then( ( resp ) =>
+      {
+        if ( resp.message )
+        {
+          toast.success( resp.message )
+          navigate( '/admindashboard' )
+        }
+
+      } ).catch( ( error ) =>
+      {
+        toast.error( error.message )
+
+      } ).finally( () =>
+      {
+        setFormData( {
+          email: '',
+          password: ''
+        } )
+      } )
+    }
+    else if ( roleTypeValue == "Faculty" )
+    {
+
+      postWrapper( 'facultyAuth/facultyLogin', {
+        email: formData.email,
+        password: formData.password
+      } ).then( ( resp ) =>
+      {
+        if ( resp.message )
+        {
+          toast.success( resp.message )
+
+          if ( resp.message != "Your account is not approved by admin yet. Please wait." )
+          {
+            navigate( '/facultydashboard' )
+          }
+        }
+
+      } ).catch( ( error ) =>
+      {
+        toast.error( error.message )
+
+      } ).finally( () =>
+      {
+        setFormData( {
+          email: '',
+          password: ''
+        } )
+      } )
+    }
+
+
   };
 
 
