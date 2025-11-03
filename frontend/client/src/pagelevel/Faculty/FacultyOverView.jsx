@@ -53,15 +53,5 @@ const cardStyle = {
     margin: "10px",
 };
 
-const buttonStyle = {
-    backgroundColor: "#007bff",
-    color: "white",
-    padding: "10px 20px",
-    fontSize: "15px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "bold",
-};
 
 export default FacultyOverView
