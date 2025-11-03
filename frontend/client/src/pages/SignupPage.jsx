@@ -72,7 +72,46 @@ const SignupPage = () =>
       } ).catch( ( resp ) =>
       {
         toast.error( resp.message )
+      } ).finally( () =>
+      {
+        setFormData( {
+          email: '',
+          fullName: '',
+          id: '',
+          password: ''
+        } )
       } )
+    }
+    else if ( roleTypeValue == "Faculty" )
+    {
+
+      postWrapper( 'facultyAuth/facultySignup', {
+        fullName: formData.name,
+        email: formData.email,
+        id: formData.id,
+        password: formData.password
+      } ).then( ( resp ) =>
+      {
+
+        if ( resp.message )
+        {
+          toast.success( resp.message )
+          navigate( '/' )
+        }
+
+      } ).catch( ( resp ) =>
+      {
+        toast.error( resp.message )
+      } ).finally( () =>
+      {
+        setFormData( {
+          email: '',
+          fullName: '',
+          id: '',
+          password: ''
+        } )
+      } )
+
     }
   }
 

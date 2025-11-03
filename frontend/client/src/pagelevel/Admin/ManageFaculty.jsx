@@ -1,21 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
+import { toast } from "react-toastify";
+import { postWrapper } from "../../lib/api/postWrapper";
 
 export default function AdminUsersTable ()
 {
-    const [ users, setUsers ] = useState( [
-        { id: "U1001", name: "Alice Johnson", course: "B.Tech CSE", approved: false },
-        { id: "U1002", name: "Bob Kumar", course: "B.Sc Mathematics", approved: true },
-        { id: "U1003", name: "Carla Mendes", course: "MBA", approved: false },
-        { id: "U1004", name: "David Lee", course: "M.Tech ECE", approved: true },
-    ] );
+    const [ users, setUsers ] = useState( [] );
+
+    useEffect( () =>
+    {
+        getAllFacultyData();
+    }, [] );
+
+    const getAllFacultyData = () =>
+    {
+        fetchWrapper( "adminAuth/adminGetAllFaculty" )
+            .then( ( resp ) =>
+            {
+                console.log( "Faculty Data:", resp );
+                setUsers( resp );
+            } )
+            .catch( ( err ) =>
+            {
+                console.error( err );
+                toast.error( err.message || "Failed to fetch faculty data" );
+            } );
+    };
 
     const toggleApprove = ( id ) =>
     {
-        setUsers( ( prev ) => prev.map( ( u ) => ( u.id === id ? { ...u, approved: !u.approved } : u ) ) );
+        postWrapper( 'adminAuth/adminApproveFaculty', {
+            facultyId: id
+        } ).then( ( resp ) =>
+        {
+            toast.success( resp.message )
+            getAllFacultyData()
+        } ).catch( ( error ) =>
+        {
+            toast.error( error.message )
+        } )
+    };
+
+    const handleSearch = ( e ) =>
+    {
+        const query = e.target.value.trim().toLowerCase();
+        if ( !query )
+        {
+            getAllFacultyData();
+            return;
+        }
+        setUsers( ( prev ) =>
+            prev.filter(
+                ( u ) =>
+                    u.fullName.toLowerCase().includes( query ) ||
+                    u.id.toLowerCase().includes( query ) ||
+                    u.email.toLowerCase().includes( query )
+            )
+        );
     };
 
     return (
-        <div style={ { padding: '20px', fontFamily: 'Arial, sans-serif' } }>
+        <div style={ { padding: "20px", fontFamily: "Arial, sans-serif" } }>
             <div style={ { display: 'flex', justifyContent: 'end', } }>
                 <input
                     type="text"
@@ -26,53 +71,53 @@ export default function AdminUsersTable ()
                         borderRadius: '5px',
                         width: '250px'
                     } }
-                    onChange={ ( e ) =>
-                    {
-                        const q = e.target.value.trim().toLowerCase();
-                        const base = [
-                            { id: "U1001", name: "Alice Johnson", course: "B.Tech CSE", approved: false },
-                            { id: "U1002", name: "Bob Kumar", course: "B.Sc Mathematics", approved: true },
-                            { id: "U1003", name: "Carla Mendes", course: "MBA", approved: false },
-                            { id: "U1004", name: "David Lee", course: "M.Tech ECE", approved: true },
-                        ];
-                        if ( !q ) return setUsers( base );
-                        setUsers( base.filter( ( u ) => u.name.toLowerCase().includes( q ) || u.id.toLowerCase().includes( q ) ) );
-                    } }
+                    onChange={ handleSearch }
                 />
             </div>
-            <table style={ { width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' } }>
-                <thead style={ { backgroundColor: '#f8f8f8' } }>
+
+            <table style={ { width: "100%", borderCollapse: "collapse", border: "1px solid #ddd" } }>
+                <thead style={ { backgroundColor: "#f8f8f8" } }>
                     <tr>
                         <th style={ headerStyle }>Name</th>
                         <th style={ headerStyle }>ID</th>
-                        <th style={ headerStyle }>Course</th>
+                        <th style={ headerStyle }>Email</th>
+                        <th style={ headerStyle }>Role</th>
                         <th style={ headerStyle }>Approve</th>
                     </tr>
                 </thead>
                 <tbody>
-                    { users.map( ( user ) => (
-                        <tr key={ user.id } style={ { borderBottom: '1px solid #ddd' } }>
-                            <td style={ cellStyle }>{ user.name }</td>
-                            <td style={ cellStyle }>{ user.id }</td>
-                            <td style={ cellStyle }>{ user.course }</td>
-                            <td style={ { ...cellStyle, textAlign: 'center' } }>
-                                <button
-                                    onClick={ () => toggleApprove( user.id ) }
-                                    style={ {
-                                        padding: '6px 12px',
-                                        borderRadius: '20px',
-                                        border: '1px solid',
-                                        borderColor: user.approved ? 'green' : 'red',
-                                        backgroundColor: user.approved ? '#d4edda' : '#f8d7da',
-                                        color: user.approved ? 'green' : 'red',
-                                        cursor: 'pointer',
-                                    } }
-                                >
-                                    { user.approved ? 'Approved' : 'Approve' }
-                                </button>
+                    { users.length > 0 ? (
+                        users.map( ( user ) => (
+                            <tr key={ user._id } style={ { borderBottom: "1px solid #ddd" } }>
+                                <td style={ cellStyle }>{ user.fullName }</td>
+                                <td style={ cellStyle }>{ user.id }</td>
+                                <td style={ cellStyle }>{ user.email }</td>
+                                <td style={ cellStyle }>{ user.role }</td>
+                                <td style={ { ...cellStyle, textAlign: "center" } }>
+                                    <button
+                                        onClick={ () => toggleApprove( user.id ) }
+                                        style={ {
+                                            padding: "6px 12px",
+                                            borderRadius: "20px",
+                                            border: "1px solid",
+                                            borderColor: user.approved ? "green" : "red",
+                                            backgroundColor: user.approved ? "#d4edda" : "#f8d7da",
+                                            color: user.approved ? "green" : "red",
+                                            cursor: "pointer",
+                                        } }
+                                    >
+                                        { user.approved ? "Approved" : "Approve" }
+                                    </button>
+                                </td>
+                            </tr>
+                        ) )
+                    ) : (
+                        <tr>
+                            <td colSpan="5" style={ { textAlign: "center", padding: "12px" } }>
+                                No faculty data found
                             </td>
                         </tr>
-                    ) ) }
+                    ) }
                 </tbody>
             </table>
         </div>
@@ -80,13 +125,13 @@ export default function AdminUsersTable ()
 }
 
 const headerStyle = {
-    padding: '12px',
-    textAlign: 'center',
-    fontWeight: '600',
-    borderBottom: '2px solid #ddd'
+    padding: "12px",
+    textAlign: "center",
+    fontWeight: "600",
+    borderBottom: "2px solid #ddd",
 };
 
 const cellStyle = {
-    padding: '10px',
-    fontSize: '15px'
+    padding: "10px",
+    fontSize: "15px",
 };

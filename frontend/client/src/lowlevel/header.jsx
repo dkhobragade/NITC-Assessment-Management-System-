@@ -1,10 +1,27 @@
 import { useAtom } from 'jotai';
 import logo from '../assets/nitc.png'
 import { roleType } from '../lib/store/userAtom';
+import { postWrapper } from '../lib/api/postWrapper';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Header = () =>
 {
     const [ roleTypeValue ] = useAtom( roleType )
+    const navigate = useNavigate()
+
+
+    const handleLogout = () =>
+    {
+        postWrapper( 'adminAuth/adminLogout' ).then( ( resp ) =>
+        {
+            toast.success( resp.message )
+            navigate( '/' )
+        } ).catch( ( error ) =>
+        {
+            toast.success( error.message )
+        } )
+    }
 
     return (
         <div
@@ -26,7 +43,7 @@ const Header = () =>
                 <img src={ logo } style={ { width: '15%', display: 'block', cursor: 'pointer' } } />
                 <p style={ { color: 'red', fontSize: '20px' } }>{ roleTypeValue } Dashboard</p>
             </div>
-            <div>
+            <div onClick={ handleLogout }>
                 <p style={ { color: 'red', fontSize: '20px', cursor: 'pointer' } }>
                     Logout
                 </p>
