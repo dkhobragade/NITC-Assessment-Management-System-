@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { roleType } from "../lib/store/userAtom";
+import { postWrapper } from "../lib/api/postWrapper";
 
 const SignupPage = () =>
 {
@@ -50,6 +51,28 @@ const SignupPage = () =>
     {
       toast.error( "Not a valid Email ID" );
       return;
+    }
+
+    if ( roleTypeValue == "Admin" )
+    {
+      postWrapper( 'adminAuth/adminSignup', {
+        fullName: formData.name,
+        email: formData.email,
+        id: formData.id,
+        password: formData.password
+      } ).then( ( resp ) =>
+      {
+
+        if ( resp.message )
+        {
+          toast.success( resp.message )
+          navigate( '/admindashboard' )
+        }
+
+      } ).catch( ( resp ) =>
+      {
+        toast.error( resp.message )
+      } )
     }
   }
 
