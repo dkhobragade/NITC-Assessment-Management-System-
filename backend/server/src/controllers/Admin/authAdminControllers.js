@@ -243,3 +243,37 @@ export const addCourses=async(req,res)=>{
   }
 
 }
+
+export const getTotalCourses = async (req, res) => {
+  try {
+    const totalCourses = await Course.countDocuments();
+
+    res.status(200).json({
+      message: "Total number of courses fetched successfully!",
+      totalCourses,
+    });
+  } catch (error) {
+    console.error("Error while fetching total courses:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getAllCourses = async (req, res) => {
+  try {
+    const courses = await Course.find();
+
+    if (!courses || courses.length === 0) {
+      return res.status(404).json({ message: "No courses found." });
+    }
+
+    res.status(200).json({
+      message: "Courses fetched successfully!",
+      totalCourses: courses.length,
+      courses,
+    });
+  } catch (error) {
+    console.error("Error while fetching all courses:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

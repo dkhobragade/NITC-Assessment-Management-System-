@@ -1,5 +1,6 @@
 import bcryptjs from 'bcryptjs'
 import EvalutorUser from '../../models/EvalutorUser.js';
+import { generateToken } from '../../utils/utils.js';
 
 export const evalutorSignup=async(req,res)=>{
     const { fullName, email, id, password } = req.body;

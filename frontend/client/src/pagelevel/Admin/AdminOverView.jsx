@@ -18,15 +18,15 @@ const AdminOverView = () =>
 
     const getAllCourseData = () =>
     {
-        fetchWrapper( "adminAuth/adminGetAllCourse" ).then( ( resp ) =>
+        fetchWrapper( "adminAuth/totalCourses" ).then( ( resp ) =>
         {
             setData( ( prev ) => ( {
                 ...prev,
-                course: resp.length || 0,
+                course: resp.totalCourses || 0,
             } ) );
         } ).catch( ( err ) =>
         {
-            toast.error( err.message )
+            toast.error( err.message.message )
         } )
     }
 

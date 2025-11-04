@@ -1,17 +1,50 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { postWrapper } from "../../lib/api/postWrapper";
+import { useEffect } from "react";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
 
 const ManageCourse = () =>
 {
+
+    useEffect( () =>
+    {
+        getAllCourses()
+        getAllFaculty()
+    }, [] )
+
     const [ faculty, setFaculty ] = useState( '' );
     const [ course, setCourse ] = useState( '' );
     const [ courseName, setCourseName ] = useState( '' );
     const [ courseCode, setCourseCode ] = useState( '' );
 
+    const [ courseList, setCourseList ] = useState( [] )
+    const [ facultyList, setFacultyList ] = useState( [] )
 
-    const facultyList = [ 'John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown' ];
-    const courseList = [ 'Mathematics', 'Physics', 'Computer Science', 'Chemistry' ];
+    const getAllCourses = () =>
+    {
+        fetchWrapper( "adminAuth/coursesData" ).then( ( resp ) =>
+        {
+            setCourseList( resp.courses )
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message.message )
+        } )
+    }
+
+    const getAllFaculty = () =>
+    {
+        fetchWrapper( "adminAuth/adminGetAllFaculty" )
+            .then( ( resp ) =>
+            {
+                setFacultyList( resp );
+            } )
+            .catch( ( err ) =>
+            {
+                console.error( err );
+                toast.error( err.message || "Failed to fetch faculty data" );
+            } );
+    }
 
 
     const handleSubmit = ( e ) =>
@@ -121,7 +154,7 @@ const ManageCourse = () =>
             >
                 <option value="">Select Faculty</option>
                 { facultyList.map( ( fac, index ) => (
-                    <option key={ index } value={ fac }>{ fac }</option>
+                    <option key={ index } value={ fac.id }>{ fac.fullName }</option>
                 ) ) }
             </select>
 
@@ -133,9 +166,12 @@ const ManageCourse = () =>
             >
                 <option value="">Select Course</option>
                 { courseList.map( ( crs, index ) => (
-                    <option key={ index } value={ crs }>{ crs }</option>
+                    <option key={ index } value={ crs.courseCode }>
+                        { crs.courseName }
+                    </option>
                 ) ) }
             </select>
+
 
             <button
                 type="submit"
