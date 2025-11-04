@@ -1,7 +1,34 @@
+import { useEffect } from "react";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
+import { useState } from "react";
+
 const FacultyOverView = () =>
 {
-    const totalTasks = 8;
-    const evaluatorsMapped = 4;
+
+    const [ data, setData ] = useState( {
+        totalEvalutor: 0,
+        totalTask: 0
+    } )
+
+    useEffect( () =>
+    {
+        getEvalutorCount()
+    }, [] )
+
+
+    const getEvalutorCount = () =>
+    {
+        fetchWrapper( "facultyAuth/getTotalEvalutor" ).then( ( resp ) =>
+        {
+            setData( ( prev ) => ( {
+                ...prev,
+                totalEvalutor: resp.totalEvalutor || 0,
+            } ) );
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message.message )
+        } )
+    }
 
     return <>
         <div
@@ -35,7 +62,7 @@ const FacultyOverView = () =>
 
                 <div style={ cardStyle }>
                     <h3 style={ { marginBottom: "8px", color: "#28a745" } }>Evaluators</h3>
-                    <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ evaluatorsMapped }</p>
+                    <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ data.totalEvalutor }</p>
                 </div>
             </div>
         </div>

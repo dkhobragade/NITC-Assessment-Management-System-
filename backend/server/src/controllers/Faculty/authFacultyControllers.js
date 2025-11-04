@@ -171,3 +171,18 @@ export const getAllEvalutorData=async(req,res)=>{
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+
+
+export const getTotalEvalutor=async(req,res)=>{
+  try {
+    const totalEvalutor = await EvalutorUser.countDocuments();
+
+    res.status(200).json({
+      message: "Total number of evalutor fetched successfully!",
+      totalEvalutor,
+    });
+  } catch (error) {
+    console.error("Error while fetching total evalutor:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}

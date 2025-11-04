@@ -1,5 +1,5 @@
 import express from 'express'
-import { adminSignup , adminLogin, adminLogout, getAllFacultyData, approveFaculty, addCourses, assignCourse, getAllCourseData} from '../controllers/Admin/authAdminControllers.js'
+import { adminSignup , adminLogin, adminLogout, getAllFacultyData, approveFaculty, addCourses, assignCourse, getAllCourseData, getTotalCourses, getAllCourses} from '../controllers/Admin/authAdminControllers.js'
 
 const router =express.Router()
 
@@ -14,6 +14,10 @@ router.get('/adminGetAllFaculty',getAllFacultyData)
 router.get('/adminGetAllCourse',getAllCourseData)
 
 router.post('/adminAddCourses',addCourses)
+
+router.get('/totalCourses', getTotalCourses);
+
+router.get('/coursesData',getAllCourses)
 
 router.post('/adminAssignCourse',assignCourse)
 
