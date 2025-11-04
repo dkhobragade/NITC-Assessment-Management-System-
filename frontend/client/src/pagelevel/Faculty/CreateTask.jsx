@@ -118,6 +118,22 @@ const CreateTask = () =>
                         />
                     </div>
 
+                    <label style={ { display: "block", fontWeight: "bold", marginBottom: "5px" } }>
+                        Upload PDF
+                    </label>
+                    <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={ ( e ) => setPdfFile( e.target.files[ 0 ] ) }
+                        style={ {
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            border: '1px solid #ccc',
+                            marginBottom: '12px'
+                        } }
+                    />
+
                     <button
                         type="submit"
                         style={ {

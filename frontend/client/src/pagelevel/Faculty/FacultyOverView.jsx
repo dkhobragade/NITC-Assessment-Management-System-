@@ -29,12 +29,12 @@ const FacultyOverView = () =>
                 } }
             >
                 <div style={ cardStyle }>
-                    <h3 style={ { marginBottom: "8px", color: "#007bff" } }>Total Tasks</h3>
+                    <h3 style={ { marginBottom: "8px", color: "#007bff" } }>Tasks Created</h3>
                     <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ totalTasks }</p>
                 </div>
 
                 <div style={ cardStyle }>
-                    <h3 style={ { marginBottom: "8px", color: "#28a745" } }>Evaluators Mapped</h3>
+                    <h3 style={ { marginBottom: "8px", color: "#28a745" } }>Evaluators</h3>
                     <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ evaluatorsMapped }</p>
                 </div>
             </div>

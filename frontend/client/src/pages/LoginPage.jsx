@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { roleType } from "../lib/store/userAtom";
 import { postWrapper } from "../lib/api/postWrapper";
+import { roleConfig } from "../lib/helper/helper";
 
 const LoginPage = () =>
 {
@@ -23,6 +24,7 @@ const LoginPage = () =>
 
   const handleSubmit = ( e ) =>
   {
+    const config = roleConfig[ roleTypeValue ];
     e.preventDefault();
 
     if ( !formData.email.trim() )
@@ -36,62 +38,28 @@ const LoginPage = () =>
       return;
     }
 
-    if ( roleTypeValue == "Admin" )
+    postWrapper( config.endpoint, {
+      email: formData.email,
+      password: formData.password
+    } ).then( ( resp ) =>
     {
-
-      postWrapper( 'adminAuth/adminLogin', {
-        email: formData.email,
-        password: formData.password
-      } ).then( ( resp ) =>
+      if ( resp.message )
       {
-        if ( resp.message )
-        {
-          toast.success( resp.message )
-          navigate( '/admindashboard' )
-        }
+        toast.success( resp.message )
+        navigate( config.redirect )
+      }
 
-      } ).catch( ( error ) =>
-      {
-        toast.error( error.message )
-
-      } ).finally( () =>
-      {
-        setFormData( {
-          email: '',
-          password: ''
-        } )
-      } )
-    }
-    else if ( roleTypeValue == "Faculty" )
+    } ).catch( ( error ) =>
     {
+      toast.error( error.message )
 
-      postWrapper( 'facultyAuth/facultyLogin', {
-        email: formData.email,
-        password: formData.password
-      } ).then( ( resp ) =>
-      {
-        if ( resp.message )
-        {
-          toast.success( resp.message )
-
-          if ( resp.message != "Your account is not approved by admin yet. Please wait." )
-          {
-            navigate( '/facultydashboard' )
-          }
-        }
-
-      } ).catch( ( error ) =>
-      {
-        toast.error( error.message )
-
-      } ).finally( () =>
-      {
-        setFormData( {
-          email: '',
-          password: ''
-        } )
+    } ).finally( () =>
+    {
+      setFormData( {
+        email: '',
+        password: ''
       } )
-    }
+    } )
 
 
   };
