@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs'
 import EvalutorUser from '../../models/EvalutorUser.js';
 import { generateToken } from '../../utils/utils.js';
+import StudentUser from '../../models/StudentUser.js';
 
 export const evalutorSignup=async(req,res)=>{
     const { fullName, email, id, password } = req.body;
@@ -98,4 +99,25 @@ export const evalutorLogout=async(req,res)=>{
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+
+export const getAllStudentData=async(req,res)=>{
+
+  try{
+
+    const getStudentData = await  StudentUser.find()
+
+    if (!getStudentData || getStudentData.length == 0) {
+      return res.status(404).json({ message: "No user available" });
+    }
+
+    return res.status(200).json(getStudentData);
+
+  }
+  catch(error){
+    console.log("Error while getting all user", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+
 }
