@@ -16,4 +16,5 @@ router.get('/getAllEvalutor',getAllEvalutorData)
 
 router.get('/getTotalEvalutor',getTotalEvalutor)
 
+
 export default router

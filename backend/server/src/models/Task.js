@@ -1,33 +1,23 @@
 import mongoose from "mongoose";
 
-const taskSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    dueDate: {
-      type: Date,
-      required: true,
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "FacultyUser", // or "AdminUser" depending on who creates the task
-      required: false,
-    },
-    pdfFile: {
-      type: String, // store the file URL or path (e.g., from Firebase, AWS, or local storage)
-      required: false,
-      trim: true,
-    },
+const taskSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true,
   },
-  { timestamps: true }
-);
+  description: {
+    type: String,
+    required: true,
+  },
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  pdfUrl: {
+    type: String, // path or URL to uploaded file
+    required: false,
+  },
+}, { timestamps: true });
 
 export const Task = mongoose.model("Task", taskSchema);
