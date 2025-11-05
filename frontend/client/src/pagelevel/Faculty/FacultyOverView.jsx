@@ -57,7 +57,7 @@ const FacultyOverView = () =>
             >
                 <div style={ cardStyle }>
                     <h3 style={ { marginBottom: "8px", color: "#007bff" } }>Tasks Created</h3>
-                    <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ totalTasks }</p>
+                    <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ data.totalTask }</p>
                 </div>
 
                 <div style={ cardStyle }>
