@@ -211,6 +211,28 @@ export const assignCourse=async(req,res)=>{
 }
 
 
+export const getAssignedCourses = async (req, res) => {
+  try {
+    const assignedCourses = await AssignedCourse.find()
+      .populate("faculty", "name email")   // populate faculty name & email only
+      .populate("course", "title code");   // populate course details (adjust fields as per your schema)
+
+    if (!assignedCourses || assignedCourses.length === 0) {
+      return res.status(404).json({ message: "No assigned courses found" });
+    }
+
+    res.status(200).json({
+      message: "Assigned courses fetched successfully",
+      data: assignedCourses,
+    });
+  } catch (error) {
+    console.error("Error while fetching assigned courses:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
 export const addCourses=async(req,res)=>{
 
   const { courseName, courseCode } = req.body;

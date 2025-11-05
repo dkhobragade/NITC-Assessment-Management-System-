@@ -11,6 +11,7 @@ const ManageCourse = () =>
     {
         getAllCourses()
         getAllFaculty()
+        getAssignedCourses()
     }, [] )
 
     const [ faculty, setFaculty ] = useState( '' );
@@ -20,12 +21,25 @@ const ManageCourse = () =>
 
     const [ courseList, setCourseList ] = useState( [] )
     const [ facultyList, setFacultyList ] = useState( [] )
+    const [ assignedCourses, setAssignedCourses ] = useState( [] )
 
     const getAllCourses = () =>
     {
         fetchWrapper( "adminAuth/coursesData" ).then( ( resp ) =>
         {
             setCourseList( resp.courses )
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message.message )
+        } )
+    }
+
+    const getAssignedCourses = () =>
+    {
+        fetchWrapper( "adminAuth/assigned-courses" ).then( ( resp ) =>
+        {
+            setAssignedCourses( resp.data )
+            console.log( "resp.courses.data", resp.courses.data )
         } ).catch( ( err ) =>
         {
             toast.error( err.message.message )
@@ -145,6 +159,32 @@ const ManageCourse = () =>
                 Add Course
             </button>
         </div>
+        <br />
+        <table style={ { width: "100%", borderCollapse: "collapse", border: "1px solid #ddd" } }>
+            <thead style={ { backgroundColor: "#f8f8f8" } }>
+                <tr>
+                    <th style={ headerStyle }>Course</th>
+                    <th style={ headerStyle }>Course ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                { courseList.length > 0 ? (
+                    courseList.map( ( user ) => (
+                        <tr key={ user._id } style={ { borderBottom: "1px solid #ddd" } }>
+                            <td style={ cellStyle }>{ user.courseName }</td>
+                            <td style={ cellStyle }>{ user.courseCode }</td>
+                        </tr>
+                    ) )
+                ) : (
+                    <tr>
+                        <td colSpan="5" style={ { textAlign: "center", padding: "12px" } }>
+                            No Course data found
+                        </td>
+                    </tr>
+                ) }
+            </tbody>
+        </table>
+        <br />
         <h3>Assign Course</h3>
         <form onSubmit={ handleSubmit } style={ { marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', justifySelf: 'center' } }>
             <select
@@ -180,7 +220,46 @@ const ManageCourse = () =>
                 Assign Course
             </button>
         </form>
+
+        <br />
+        <table style={ { width: "100%", borderCollapse: "collapse", border: "1px solid #ddd" } }>
+            <thead style={ { backgroundColor: "#f8f8f8" } }>
+                <tr>
+                    <th style={ headerStyle }>Faculty Name</th>
+                    <th style={ headerStyle }>Assigned Course</th>
+                </tr>
+            </thead>
+            <tbody>
+                { assignedCourses.length > 0 ? (
+                    assignedCourses.map( ( item, index ) => (
+                        <tr key={ index } style={ { borderBottom: "1px solid #ddd" } }>
+                            <td style={ cellStyle }>{ item.faculty }</td>
+                            <td style={ cellStyle }>{ item.course }</td>
+                        </tr>
+                    ) )
+                ) : (
+                    <tr>
+                        <td colSpan="2" style={ { textAlign: "center", padding: "12px" } }>
+                            No Assigned Course data found
+                        </td>
+                    </tr>
+                ) }
+            </tbody>
+        </table>
+
     </div>
 }
+
+const headerStyle = {
+    padding: "12px",
+    textAlign: "center",
+    fontWeight: "600",
+    borderBottom: "2px solid #ddd",
+};
+
+const cellStyle = {
+    padding: "10px",
+    fontSize: "15px",
+};
 
 export default ManageCourse
