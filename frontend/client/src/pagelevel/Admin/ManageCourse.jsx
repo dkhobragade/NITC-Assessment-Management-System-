@@ -82,6 +82,7 @@ const ManageCourse = () =>
             if ( resp.message )
             {
                 toast.success( resp.message )
+                getAssignedCourses()
             }
         } ).catch( ( resp ) =>
         {
@@ -105,6 +106,7 @@ const ManageCourse = () =>
             {
                 toast.success( resp.message )
             }
+            getAllCourses()
         } ).catch( ( resp ) =>
         {
             toast.error( resp.message )
@@ -231,12 +233,19 @@ const ManageCourse = () =>
             </thead>
             <tbody>
                 { assignedCourses.length > 0 ? (
-                    assignedCourses.map( ( item, index ) => (
-                        <tr key={ index } style={ { borderBottom: "1px solid #ddd" } }>
-                            <td style={ cellStyle }>{ item.faculty }</td>
-                            <td style={ cellStyle }>{ item.course }</td>
-                        </tr>
-                    ) )
+                    assignedCourses.map( ( item, index ) =>
+                    {
+                        // Find faculty name from the faculty list
+                        const matchedFaculty = facultyList.find( ( f ) => f.id === item.faculty );
+                        const facultyName = matchedFaculty ? matchedFaculty.fullName : item.faculty; // fallback if not found
+
+                        return (
+                            <tr key={ index } style={ { borderBottom: "1px solid #ddd" } }>
+                                <td style={ cellStyle }>{ facultyName }</td>
+                                <td style={ cellStyle }>{ item.course }</td>
+                            </tr>
+                        );
+                    } )
                 ) : (
                     <tr>
                         <td colSpan="2" style={ { textAlign: "center", padding: "12px" } }>
@@ -246,6 +255,7 @@ const ManageCourse = () =>
                 ) }
             </tbody>
         </table>
+
 
     </div>
 }

@@ -50,6 +50,7 @@ It provides a centralized system for faculty members to create evaluation tasks,
 6. **Evaluation Module** – Evaluators enter scores.
 7. **Reporting Module** – Faculty view/download reports.
 
+
 ---
 
 ## 🛠️ Technology Stack (Suggested)
@@ -61,6 +62,10 @@ It provides a centralized system for faculty members to create evaluation tasks,
 - **Password hashing:** bcryptjs
 - **User authentication & authorization:** jsonwebtoken (JWT)
 - **Cookie management:** cookie-parser
+- **PDF:** multer
+- **Excel:** xlsx
+- **Icon:** react-icons
+
 
 ---
 

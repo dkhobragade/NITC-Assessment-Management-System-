@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAtom } from "jotai";
-import { roleType } from "../lib/store/userAtom";
+import { useAtom, useSetAtom } from "jotai";
+import { roleType, userAtom } from "../lib/store/userAtom";
 import { postWrapper } from "../lib/api/postWrapper";
 import { roleConfig } from "../lib/helper/helper";
 
@@ -12,6 +12,8 @@ const LoginPage = () =>
     email: "",
     password: ""
   } );
+
+  const loginAtom = useSetAtom( userAtom )
 
   const [ roleTypeValue ] = useAtom( roleType )
 
@@ -45,6 +47,12 @@ const LoginPage = () =>
     {
       if ( resp.message )
       {
+        loginAtom( {
+          name: resp.fullName,
+          email: resp.email,
+          role: resp.role,
+          id: resp.id
+        } )
         toast.success( resp.message )
         navigate( config.redirect )
       }
@@ -63,8 +71,6 @@ const LoginPage = () =>
 
 
   };
-
-
 
   const onClickSignIn = () =>
   {

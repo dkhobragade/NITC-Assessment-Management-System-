@@ -44,7 +44,7 @@ export const adminSignup = async ( req, res ) =>
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
-        id:newUser.id,
+        id: newUser.id,
         message: "Admin added Succesfully",
         role: newUser.role,
       } );
@@ -63,239 +63,293 @@ export const adminSignup = async ( req, res ) =>
 
 }
 
-export const approveFaculty = async (req, res) => {
+export const approveFaculty = async ( req, res ) =>
+{
   const { facultyId } = req.body;
 
-  try {
-    const faculty = await FacultyUser.findOne({ id: facultyId });
-    if (!faculty) return res.status(404).json({ message: "Faculty not found" });
+  try
+  {
+    const faculty = await FacultyUser.findOne( { id: facultyId } );
+    if ( !faculty ) return res.status( 404 ).json( { message: "Faculty not found" } );
 
     faculty.approved = true;
     await faculty.save();
 
-    res.status(200).json({ message: "Faculty approved successfully" });
-  } catch (error) {
-    console.error("Error approving faculty:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status( 200 ).json( { message: "Faculty approved successfully" } );
+  } catch ( error )
+  {
+    console.error( "Error approving faculty:", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 };
 
 
 
-export const adminLogin = async ( req, res ) => {
+export const adminLogin = async ( req, res ) =>
+{
 
   const { email, password } = req.body;
 
-  try {
-    const user = await AdminUser.findOne({ email });
+  try
+  {
+    const user = await AdminUser.findOne( { email } );
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid Credentials" });
+    if ( !user )
+    {
+      return res.status( 400 ).json( { message: "Invalid Credentials" } );
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await bcrypt.compare( password, user.password );
 
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Wrong Password" });
+    if ( !isPasswordCorrect )
+    {
+      return res.status( 400 ).json( { message: "Wrong Password" } );
     }
 
-    generateToken({ userId: user._id, res });
+    generateToken( { userId: user._id, res } );
 
-    res.status(200).json({
+    res.status( 200 ).json( {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
       role: user.role,
       message: "LogIn successfully",
-    });
-  } catch (error) {
-    console.log("Error in Signin controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    } );
+  } catch ( error )
+  {
+    console.log( "Error in Signin controller", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 }
-export const adminLogout = async ( req, res ) => {
+export const adminLogout = async ( req, res ) =>
+{
 
-  try {
-    res.cookie("jwt", "", {
+  try
+  {
+    res.cookie( "jwt", "", {
       httpOnly: true,
       sameSite: "None",
       secure: true,
       maxAge: 0,
       path: "/",
-    });
-    res.status(200).json({ message: "Logout Successfully" });
-  } catch (error) {
-    console.log("Error in logout controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    } );
+    res.status( 200 ).json( { message: "Logout Successfully" } );
+  } catch ( error )
+  {
+    console.log( "Error in logout controller", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
- }
+}
 
-export const getAllFacultyData=async(req,res)=>{
+export const getAllFacultyData = async ( req, res ) =>
+{
 
-  try{
+  try
+  {
 
-    const getFacultyData = await  FacultyUser.find()
+    const getFacultyData = await FacultyUser.find()
 
-    if (!getFacultyData || getFacultyData.length == 0) {
-      return res.status(404).json({ message: "No user available" });
+    if ( !getFacultyData || getFacultyData.length == 0 )
+    {
+      return res.status( 404 ).json( { message: "No user available" } );
     }
 
-    return res.status(200).json(getFacultyData);
+    return res.status( 200 ).json( getFacultyData );
 
   }
-  catch(error){
-    console.log("Error while getting all user", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+  catch ( error )
+  {
+    console.log( "Error while getting all user", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 }
 
 
-export const getAllCourseData=async(req,res)=>{
+export const getAllCourseData = async ( req, res ) =>
+{
 
-  try {
+  try
+  {
     const assignedCourses = await AssignedCourse.find();
 
-    if (!assignedCourses || assignedCourses.length === 0) {
-      return res.status(404).json({ message: "No assigned courses found" });
+    if ( !assignedCourses || assignedCourses.length === 0 )
+    {
+      return res.status( 404 ).json( { message: "No assigned courses found" } );
     }
 
     // For each assignment, fetch faculty name from FacultyUser collection
     const result = await Promise.all(
-      assignedCourses.map(async (record) => {
-        const faculty = await FacultyUser.findOne({ _id: record.faculty });
+      assignedCourses.map( async ( record ) =>
+      {
+        const faculty = await FacultyUser.findOne( { _id: record.faculty } );
 
         return {
           facultyName: faculty ? faculty.fullName : "Unknown Faculty",
           courseName: record.course,
           assignedAt: record.createdAt,
         };
-      })
+      } )
     );
 
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Error while getting assigned course data:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    return res.status( 200 ).json( result );
+  } catch ( error )
+  {
+    console.error( "Error while getting assigned course data:", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 }
 
 
-export const assignCourse=async(req,res)=>{
+export const assignCourse = async ( req, res ) =>
+{
   const { faculty, course } = req.body;
 
-  try{
+  try
+  {
 
-    if (!faculty || !course) {
-      return res.status(400).json({ message: "Faculty and Course are required" });
+    if ( !faculty || !course )
+    {
+      return res.status( 400 ).json( { message: "Faculty and Course are required" } );
     }
 
-    const existingAssignment = await AssignedCourse.findOne({ faculty, course });
-    if (existingAssignment) {
-      return res.status(400).json({ message: "This course is already assigned to the faculty" });
+    const facultyName = await EvalutorUser.findById( faculty );
+    const courseData = await Courses.findOne( { courseCode: course } );
+
+    const existingAssignment = await AssignedCourse.findOne( {
+      facultyID: faculty,
+      course: course,
+    } );
+    if ( existingAssignment )
+    {
+      return res.status( 400 ).json( { message: "This course is already assigned to the faculty" } );
     }
 
-    const newAssignment = new AssignedCourse({ faculty, course });
+    const newAssignment = new AssignedCourse( {
+      facultyID: faculty,
+      facultyName: facultyName.fullName,
+      course: courseData.courseCode,
+      courseName: courseData.courseName,
+    } );
+
     await newAssignment.save();
 
-      res.status(201).json({
+    res.status( 201 ).json( {
       message: "Course assigned successfully",
       data: newAssignment,
-    });
+    } );
 
   }
-  catch(error){
-    console.log("Error while getting all user", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+  catch ( error )
+  {
+    console.log( "Error while getting all user", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 
 }
 
 
-export const getAssignedCourses = async (req, res) => {
-  try {
-    const assignedCourses = await AssignedCourse.find()
-      .populate("faculty", "name email")   // populate faculty name & email only
-      .populate("course", "title code");   // populate course details (adjust fields as per your schema)
+export const getAssignedCourses = async ( req, res ) =>
+{
+  try
+  {
 
-    if (!assignedCourses || assignedCourses.length === 0) {
-      return res.status(404).json({ message: "No assigned courses found" });
+    const assignedCourses = await AssignedCourse.find()
+      .populate( "facultyID", "fullName email id" ) // ✅ correct field name
+      .sort( { createdAt: -1 } );
+
+    if ( !assignedCourses || assignedCourses.length === 0 )
+    {
+      return res.status( 404 ).json( { message: "No assigned courses found" } );
     }
 
-    res.status(200).json({
+    res.status( 200 ).json( {
       message: "Assigned courses fetched successfully",
       data: assignedCourses,
-    });
-  } catch (error) {
-    console.error("Error while fetching assigned courses:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    } );
+  } catch ( error )
+  {
+    console.error( "Error while fetching assigned courses:", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 };
 
 
 
-export const addCourses=async(req,res)=>{
+export const addCourses = async ( req, res ) =>
+{
 
   const { courseName, courseCode } = req.body;
 
-  try{
+  try
+  {
 
-    if (!courseName || !courseCode ) {
-      return res.status(400).json({ message: "All required fields must be provided." });
+    if ( !courseName || !courseCode )
+    {
+      return res.status( 400 ).json( { message: "All required fields must be provided." } );
     }
 
-    const existingCourse = await Course.findOne({ courseCode });
+    const existingCourse = await Course.findOne( { courseCode } );
 
-    if (existingCourse) {
-      return res.status(400).json({ message: "Course with this code already exists." });
+    if ( existingCourse )
+    {
+      return res.status( 400 ).json( { message: "Course with this code already exists." } );
     }
 
-    const newCourse = new Course({
+    const newCourse = new Course( {
       courseName,
       courseCode
-    });
+    } );
 
     await newCourse.save();
 
-    res.status(201).json({ message: "Course added successfully!", course: newCourse });
+    res.status( 201 ).json( { message: "Course added successfully!", course: newCourse } );
 
   }
-  catch(error){
-    console.log("Error while getting all user", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+  catch ( error )
+  {
+    console.log( "Error while getting all user", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 
 }
 
-export const getTotalCourses = async (req, res) => {
-  try {
+export const getTotalCourses = async ( req, res ) =>
+{
+  try
+  {
     const totalCourses = await Course.countDocuments();
 
-    res.status(200).json({
+    res.status( 200 ).json( {
       message: "Total number of courses fetched successfully!",
       totalCourses,
-    });
-  } catch (error) {
-    console.error("Error while fetching total courses:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    } );
+  } catch ( error )
+  {
+    console.error( "Error while fetching total courses:", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 };
 
 
-export const getAllCourses = async (req, res) => {
-  try {
+export const getAllCourses = async ( req, res ) =>
+{
+  try
+  {
     const courses = await Course.find();
 
-    if (!courses || courses.length === 0) {
-      return res.status(404).json({ message: "No courses found." });
+    if ( !courses || courses.length === 0 )
+    {
+      return res.status( 404 ).json( { message: "No courses found." } );
     }
 
-    res.status(200).json({
+    res.status( 200 ).json( {
       message: "Courses fetched successfully!",
       totalCourses: courses.length,
       courses,
-    });
-  } catch (error) {
-    console.error("Error while fetching all courses:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    } );
+  } catch ( error )
+  {
+    console.error( "Error while fetching all courses:", error.message );
+    res.status( 500 ).json( { message: "Internal Server Error" } );
   }
 };
