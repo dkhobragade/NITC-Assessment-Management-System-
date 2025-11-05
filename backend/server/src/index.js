@@ -28,6 +28,7 @@ app.use("/api/adminAuth",adminAuthRoutes)
 app.use("/api/facultyAuth",facultyAuthRoutes)
 app.use("/api/evalutorAuth",evalutorAuthRoutes)
 app.use("/api/studentAuth",studentAuthRoutes)
+app.use("/uploads", express.static("uploads"));
 
 app.listen(PORT,()=>{
     console.log("Server is running on http://localhost:" + PORT);

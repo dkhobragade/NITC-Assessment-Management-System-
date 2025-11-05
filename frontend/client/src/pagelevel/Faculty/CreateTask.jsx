@@ -1,32 +1,44 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { postWrapper } from "../../lib/api/postWrapper";
 
 const CreateTask = () =>
 {
-
     const [ task, setTask ] = useState( {
         title: "",
         description: "",
         dueDate: "",
     } );
+    const [ pdfFile, setPdfFile ] = useState( null );
 
     const handleChange = ( e ) =>
     {
         setTask( { ...task, [ e.target.name ]: e.target.value } );
     };
 
-    const handleSubmit = ( e ) =>
+    const handleSubmit = async ( e ) =>
     {
         e.preventDefault();
-        toast.success( "Task created successfully!" )
-        setTask( {
-            title: '',
-            description: '',
-            dueDate: ''
-        } )
+
+        const formData = new FormData();
+        formData.append( "title", task.title );
+        formData.append( "description", task.description );
+        formData.append( "dueDate", task.dueDate );
+        if ( pdfFile ) formData.append( "pdf", pdfFile );
+
+        try
+        {
+            const resp = await postWrapper( "facultyAuth/create-task", formData, true );
+            toast.success( resp.message );
+            setTask( { title: "", description: "", dueDate: "" } );
+            setPdfFile( null );
+        } catch ( err )
+        {
+            toast.error( err.message || "Failed to create task" );
+        }
     };
 
-    return <>
+    return (
         <div
             style={ {
                 display: "flex",
@@ -126,11 +138,11 @@ const CreateTask = () =>
                         accept="application/pdf"
                         onChange={ ( e ) => setPdfFile( e.target.files[ 0 ] ) }
                         style={ {
-                            width: '100%',
-                            padding: '10px',
-                            borderRadius: '5px',
-                            border: '1px solid #ccc',
-                            marginBottom: '12px'
+                            width: "100%",
+                            padding: "10px",
+                            borderRadius: "5px",
+                            border: "1px solid #ccc",
+                            marginBottom: "12px",
                         } }
                     />
 
@@ -147,15 +159,13 @@ const CreateTask = () =>
                             cursor: "pointer",
                             fontWeight: "bold",
                         } }
-                        onMouseOver={ ( e ) => ( e.target.style.backgroundColor = "#0056b3" ) }
-                        onMouseOut={ ( e ) => ( e.target.style.backgroundColor = "#007bff" ) }
                     >
                         Create Task
                     </button>
                 </form>
             </div>
         </div>
-    </>
-}
+    );
+};
 
-export default CreateTask
+export default CreateTask;

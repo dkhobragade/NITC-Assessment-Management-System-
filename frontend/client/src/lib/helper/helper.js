@@ -23,6 +23,7 @@ export const evaluatorSidebar = [
 export const facultySidebar=[
   "Overview",
   "Manage Evalutor",
+  "Manage Student",
   "Create Task",
   "Map Evalutor",
   "Generate Report"

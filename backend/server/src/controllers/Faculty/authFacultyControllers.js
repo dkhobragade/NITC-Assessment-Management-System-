@@ -3,6 +3,10 @@ import FacultyUser from "../../models/FacultyUser.js";
 import bcryptjs from 'bcryptjs'
 import { Task } from "../../models/Task.js";
 import EvalutorUser from "../../models/EvalutorUser.js";
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
+import StudentUser from "../../models/StudentUser.js";
 
 export const facultySignup = async (req, res) => {
   const { fullName, email, id, password } = req.body;
@@ -107,34 +111,62 @@ export const facultyLogout = async ( req, res ) => {
  }
 
 
-export const createdTask=async(req,res)=>{
-  const { title, description, dueDate } = req.body;
+const uploadPath = "uploads/";
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath);
+}
 
-  try{
+// Multer configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+  },
+});
+
+export const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.ms-excel", // .xls
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new Error("Only PDF or Excel files are allowed"), false);
+  },
+});
+
+export const createTask = async (req, res) => {
+  try {
+    const { title, description, dueDate } = req.body;
+    const pdfUrl = req.file ? req.file.path : null;
 
     if (!title || !description || !dueDate) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-      const newTask = await Task.create({
+    const newTask = new Task({
       title,
       description,
       dueDate,
-      createdBy: req.user ? req.user._id : null,
+      pdfUrl,
     });
 
+    await newTask.save();
 
-    return res
-      .status(201)
-      .json({ message: "Task created successfully", task: newTask });
-
-  }
-  catch(error){
-    console.log("Error in Creating Task", error.message);
+    res.status(201).json({
+      message: "Task created successfully",
+      task: newTask,
+    });
+  } catch (error) {
+    console.error("Error creating task:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
-
+};
 
 export const approveEvalutor = async (req, res) => {
   const { evalutorId } = req.body;
@@ -153,6 +185,23 @@ export const approveEvalutor = async (req, res) => {
   }
 };
 
+export const approveStudent = async (req, res) => {
+  const { studentId } = req.body;
+
+  try {
+    const student = await StudentUser.findOne({ id: studentId });
+    if (!student) return res.status(404).json({ message: "student not found" });
+
+    student.approved = true;
+    await student.save();
+
+    res.status(200).json({ message: "student approved successfully" });
+  } catch (error) {
+    console.error("Error approving student:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const getAllEvalutorData=async(req,res)=>{
 
   try{
@@ -160,10 +209,29 @@ export const getAllEvalutorData=async(req,res)=>{
     const getEvalutorData = await  EvalutorUser.find()
 
     if (!getEvalutorData || getEvalutorData.length == 0) {
-      return res.status(404).json({ message: "No user available" });
+      return res.status(404).json({ message: "No faculty available" });
     }
 
     return res.status(200).json(getEvalutorData);
+
+  }
+  catch(error){
+    console.log("Error while getting all user", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+export const getAllStudentData=async(req,res)=>{
+
+  try{
+
+    const getStudentData = await  StudentUser.find()
+
+    if (!getStudentData || getStudentData.length == 0) {
+      return res.status(404).json({ message: "No faculty available" });
+    }
+
+    return res.status(200).json(getStudentData);
 
   }
   catch(error){
@@ -183,6 +251,33 @@ export const getTotalEvalutor=async(req,res)=>{
     });
   } catch (error) {
     console.error("Error while fetching total evalutor:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+export const getTotalTask=async(req,res)=>{
+  try {
+    const totalTask = await Task.countDocuments();
+
+    res.status(200).json({
+      message: "Total number of Task fetched successfully!",
+      totalTask,
+    });
+  } catch (error) {
+    console.error("Error while fetching total Task:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+export const getAllTask=async(req,res)=>{
+  try{
+    const tasks = await Task.find().sort({ createdAt: -1 }); // latest first
+    res.status(200).json({
+      message: "Tasks fetched successfully",
+      tasks,
+    });
+  }catch (error) {
+    console.error("Error while fetching total Task details:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

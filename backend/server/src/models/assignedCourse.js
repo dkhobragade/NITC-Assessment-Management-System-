@@ -2,11 +2,20 @@ import mongoose from "mongoose";
 
 const assignedCourseSchema = new mongoose.Schema(
   {
-    faculty: {
+    facultyID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FacultyUser",
+      required: true,
+    },
+    facultyName: {
+      type: String,
+      required: true
+    },
+    course: {
       type: String,
       required: true,
     },
-    course: {
+    courseName: {  // ✅ new field
       type: String,
       required: true,
     },
@@ -14,4 +23,4 @@ const assignedCourseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const AssignedCourse= mongoose.model("AssignedCourse", assignedCourseSchema);
+export const AssignedCourse = mongoose.model( "AssignedCourse", assignedCourseSchema );

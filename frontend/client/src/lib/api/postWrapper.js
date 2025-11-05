@@ -1,12 +1,10 @@
 import { BASEURL } from "../constant.js";
 
-export async function postWrapper(path, body) {
+export async function postWrapper(path, body, isFormData = false) {
   const response = await fetch(`${BASEURL}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
+    headers: isFormData ? {} : { "Content-Type": "application/json" },
+    body: isFormData ? body : JSON.stringify(body),
     credentials: "include",
   });
 
