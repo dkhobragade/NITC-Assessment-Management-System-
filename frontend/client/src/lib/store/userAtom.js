@@ -6,7 +6,8 @@ export const userAtom =atom({
         name:'',
         email:'',
         id:'',
-        role:''
+        role:'',
+        sID:''
     }
 })
 

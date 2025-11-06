@@ -7,6 +7,8 @@ import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
 import StudentUser from "../../models/StudentUser.js";
+import mongoose from "mongoose";
+import { AssignedCourse } from "../../models/assignedCourse.js";
 
 export const facultySignup = async (req, res) => {
   const { fullName, email, id, password } = req.body;
@@ -142,18 +144,27 @@ export const upload = multer({
 
 export const createTask = async (req, res) => {
   try {
-    const { title, description, dueDate } = req.body;
+    const { title, description, dueDate, facultyEmail } = req.body;
     const pdfUrl = req.file ? req.file.path : null;
 
+    // Validate required fields
     if (!title || !description || !dueDate) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Find faculty using email
+    const faculty = await FacultyUser.findOne({ email: facultyEmail });
+    if (!faculty) {
+      return res.status(404).json({ message: "Faculty not found" });
+    }
+
+    // Create task linked with facultyID
     const newTask = new Task({
       title,
       description,
       dueDate,
       pdfUrl,
+      createdBy: faculty._id, // fixed here
     });
 
     await newTask.save();
@@ -167,6 +178,7 @@ export const createTask = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export const approveEvalutor = async (req, res) => {
   const { evalutorId } = req.body;
@@ -255,29 +267,74 @@ export const getTotalEvalutor=async(req,res)=>{
   }
 }
 
-export const getTotalTask=async(req,res)=>{
+export const getTotalTask = async (req, res) => {
   try {
-    const totalTask = await Task.countDocuments();
+    const { facultyId } = req.body;
+console.log("facultyId",facultyId)
+    // Validate facultyId
+    if (!facultyId || !mongoose.Types.ObjectId.isValid(facultyId)) {
+      return res.status(400).json({ message: "Invalid or missing facultyId" });
+    }
+
+    // Count tasks for this faculty
+    const totalTask = await Task.countDocuments({ createdBy: facultyId });
 
     res.status(200).json({
-      message: "Total number of Task fetched successfully!",
+      message: "Total number of tasks fetched successfully!",
       totalTask,
     });
   } catch (error) {
-    console.error("Error while fetching total Task:", error.message);
+    console.error("Error while fetching total tasks:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 
-export const getAllTask=async(req,res)=>{
-  try{
-    const tasks = await Task.find().sort({ createdAt: -1 }); // latest first
+
+export const getAllTask = async (req, res) => {
+  const { facultyId } = req.body;
+  try {
+
+    if (!facultyId) {
+      return res.status(400).json({ message: "Faculty ID is required" });
+    }
+
+    const tasks = await Task.find({ createdBy: facultyId }).sort({ createdAt: -1 });
+
     res.status(200).json({
       message: "Tasks fetched successfully",
       tasks,
     });
-  }catch (error) {
-    console.error("Error while fetching total Task details:", error.message);
+  } catch (error) {
+    console.error("Error while fetching tasks:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
+
+export const getAssignedCourses = async (req, res) => {
+  const { facultyId } = req.body; // faculty ID sent from frontend
+
+  try {
+    // Validate facultyId
+    if (!facultyId || !mongoose.Types.ObjectId.isValid(facultyId)) {
+      return res.status(400).json({ message: "Invalid or missing facultyId" });
+    }
+
+    // Fetch only courses assigned to this faculty
+    const assignedCourses = await AssignedCourse.find({ facultyID: facultyId })
+      .populate("facultyID", "fullName email id") // populate faculty details
+      .sort({ createdAt: -1 }); // latest first
+
+    if (!assignedCourses || assignedCourses.length === 0) {
+      return res.status(404).json({ message: "No assigned courses found" });
+    }
+
+    res.status(200).json({
+      message: "Assigned courses fetched successfully",
+      data: assignedCourses,
+    });
+  } catch (error) {
+    console.error("Error while fetching assigned courses:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
