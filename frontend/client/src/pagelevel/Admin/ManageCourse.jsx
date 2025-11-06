@@ -39,7 +39,6 @@ const ManageCourse = () =>
         fetchWrapper( "adminAuth/assigned-courses" ).then( ( resp ) =>
         {
             setAssignedCourses( resp.data )
-            console.log( "resp.courses.data", resp.courses.data )
         } ).catch( ( err ) =>
         {
             toast.error( err.message.message )
@@ -235,14 +234,11 @@ const ManageCourse = () =>
                 { assignedCourses.length > 0 ? (
                     assignedCourses.map( ( item, index ) =>
                     {
-                        // Find faculty name from the faculty list
-                        const matchedFaculty = facultyList.find( ( f ) => f.id === item.faculty );
-                        const facultyName = matchedFaculty ? matchedFaculty.fullName : item.faculty; // fallback if not found
 
                         return (
                             <tr key={ index } style={ { borderBottom: "1px solid #ddd" } }>
-                                <td style={ cellStyle }>{ facultyName }</td>
-                                <td style={ cellStyle }>{ item.course }</td>
+                                <td style={ cellStyle }>{ item.facultyName }</td>
+                                <td style={ cellStyle }>{ item.courseName }</td>
                             </tr>
                         );
                     } )

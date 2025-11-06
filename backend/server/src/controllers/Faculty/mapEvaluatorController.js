@@ -2,6 +2,7 @@ import multer from "multer";
 import xlsx from "xlsx";
 import fs from "fs";
 import path from "path";
+import Mapping from '../../models/Mapping.js'
 
 // File upload configuration
 const uploadPath = "uploads/";
@@ -52,21 +53,53 @@ export const uploadExcelFiles = async (req, res) => {
 };
 
 // Random mapping
-export const randomMapping = (req, res) => {
-  try {
-    const { evaluators, students } = req.body;
+// export const randomMapping = (req, res) => {
+//   try {
+//     const { evaluators, students } = req.body;
 
-    if (!evaluators || !students) {
-      return res.status(400).json({ message: "Evaluator and student data required" });
+//     if (!evaluators || !students) {
+//       return res.status(400).json({ message: "Evaluator and student data required" });
+//     }
+
+//     const mapping = students.map((student, index) => {
+//       const evaluator = evaluators[index % evaluators.length];
+//       return { student, evaluator };
+//     });
+
+//     res.status(200).json({ message: "Random mapping successful", mapping });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error in random mapping" });
+//   }
+// };
+
+
+export const randomMapping = async (req, res) => {
+    try {
+        const { evaluators, students, facultyId } = req.body;
+
+        if (!evaluators || !students || !facultyId) {
+            return res.status(400).json({ message: "Evaluator, student and facultyId data required" });
+        }
+
+        // Random mapping of students to evaluators
+        const mapping = students.map((student) => {
+            const randomIndex = Math.floor(Math.random() * evaluators.length);
+            const evaluator = evaluators[randomIndex];
+            return { student, evaluator, facultyId };
+        });
+
+        const savedMappings = await Mapping.insertMany(mapping);
+
+        res.status(200).json({
+            message: "Random mapping successful and saved to database",
+            mapping: savedMappings,
+            facultyID: facultyId, // Added facultyID at the top level
+        });
+    } catch (error) {
+        console.error("Error saving mappings:", error);
+        res.status(500).json({ message: "Error in random mapping" });
     }
-
-    const mapping = students.map((student, index) => {
-      const evaluator = evaluators[index % evaluators.length];
-      return { student, evaluator };
-    });
-
-    res.status(200).json({ message: "Random mapping successful", mapping });
-  } catch (error) {
-    res.status(500).json({ message: "Error in random mapping" });
-  }
 };
+
+
+

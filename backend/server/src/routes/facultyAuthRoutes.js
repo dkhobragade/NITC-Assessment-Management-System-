@@ -1,5 +1,5 @@
 import express from 'express'
-import { approveEvalutor,  approveStudent,  createTask,  facultyLogin, facultyLogout, facultySignup, getAllEvalutorData, getAllStudentData, getAllTask, getTotalEvalutor, getTotalTask, upload } from '../controllers/Faculty/authFacultyControllers.js'
+import { approveEvalutor,  approveStudent,  createTask,  facultyLogin, facultyLogout, facultySignup, getAllEvalutorData, getAllStudentData, getAllTask, getAssignedCourses, getTotalEvalutor, getTotalTask, upload } from '../controllers/Faculty/authFacultyControllers.js'
 import { randomMapping, uploadExcelFiles } from '../controllers/Faculty/mapEvaluatorController.js'
 
 
@@ -19,11 +19,11 @@ router.get('/getAllEvalutor',getAllEvalutorData)
 
 router.get('/getAllStudent',getAllStudentData)
 
-router.get('/task-count',getTotalTask)
+router.post('/task-count',getTotalTask)
 
 router.get('/getTotalEvalutor',getTotalEvalutor)
 
-router.get('/all-tasks',getAllTask)
+router.post('/all-tasks',getAllTask)
 
 router.post(
   "/upload-excel",
@@ -35,6 +35,8 @@ router.post(
 );
 
 router.post("/random-map", randomMapping);
+
+router.post("/get-assigned-courses", getAssignedCourses);
 
 
 export default router

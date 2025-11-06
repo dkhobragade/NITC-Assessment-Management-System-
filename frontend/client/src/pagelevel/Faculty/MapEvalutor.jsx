@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { BASEURL } from "../../lib/constant";
+import { useAtom } from 'jotai';
+import { userAtom } from "../../lib/store/userAtom";
 
 const MapEvaluator = () =>
 {
@@ -9,7 +11,9 @@ const MapEvaluator = () =>
     const [ evaluators, setEvaluators ] = useState( [] );
     const [ students, setStudents ] = useState( [] );
     const [ mapping, setMapping ] = useState( [] );
+    const [ user ] = useAtom( userAtom )
 
+    // Upload Excel files
     const handleUpload = async ( e ) =>
     {
         e.preventDefault();
@@ -34,8 +38,9 @@ const MapEvaluator = () =>
 
             if ( res.ok )
             {
-                setEvaluators( data.evaluators );
-                setStudents( data.students );
+                // Keep only _id and fullName
+                setEvaluators( data.evaluators.map( ( e ) => ( { _id: e._id, fullName: e.fullName } ) ) );
+                setStudents( data.students.map( ( s ) => ( { _id: s._id, fullName: s.fullName } ) ) );
                 toast.success( "Files uploaded successfully" );
             } else
             {
@@ -47,20 +52,38 @@ const MapEvaluator = () =>
         }
     };
 
+    // Random mapping
     const handleRandomMap = async () =>
     {
+        if ( !user?.user?.sID )
+        {
+            toast.error( "Faculty ID not found" );
+            return;
+        }
+
+
         try
         {
             const res = await fetch( `${ BASEURL }facultyAuth/random-map`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify( { evaluators, students } ),
+                body: JSON.stringify( { evaluators, students, facultyId: user.user.sID } ),
             } );
+
             const data = await res.json();
             if ( res.ok )
             {
-                setMapping( data.mapping );
+                // Only show fullName in the frontend
+                setMapping(
+                    data.mapping.map( ( pair ) => ( {
+                        student: { fullName: pair.student.fullName, _id: pair.student._id },
+                        evaluator: { fullName: pair.evaluator.fullName, _id: pair.evaluator._id },
+                    } ) )
+                );
                 toast.success( "Random mapping successful" );
+            } else
+            {
+                toast.error( data.message );
             }
         } catch ( err )
         {
@@ -113,14 +136,14 @@ const MapEvaluator = () =>
                     <h3>Evaluator List</h3>
                     <ul>
                         { evaluators.map( ( e, i ) => (
-                            <li key={ i }>{ Object.values( e ).join( " - " ) }</li>
+                            <li key={ i }>{ e.fullName }</li>
                         ) ) }
                     </ul>
 
                     <h3>Student List</h3>
                     <ul>
                         { students.map( ( s, i ) => (
-                            <li key={ i }>{ Object.values( s ).join( " - " ) }</li>
+                            <li key={ i }>{ s.fullName }</li>
                         ) ) }
                     </ul>
 
@@ -141,7 +164,10 @@ const MapEvaluator = () =>
                     { mapping.length > 0 && (
                         <div style={ { marginTop: "20px" } }>
                             <h3>Mapping Result</h3>
-                            <table border="1" style={ { width: "100%", textAlign: "left", borderCollapse: "collapse" } }>
+                            <table
+                                border="1"
+                                style={ { width: "100%", textAlign: "left", borderCollapse: "collapse" } }
+                            >
                                 <thead>
                                     <tr>
                                         <th>Student</th>
@@ -151,12 +177,26 @@ const MapEvaluator = () =>
                                 <tbody>
                                     { mapping.map( ( pair, i ) => (
                                         <tr key={ i }>
-                                            <td>{ Object.values( pair.student ).join( " - " ) }</td>
-                                            <td>{ Object.values( pair.evaluator ).join( " - " ) }</td>
+                                            <td>{ pair.student.fullName }</td>
+                                            <td>{ pair.evaluator.fullName }</td>
                                         </tr>
                                     ) ) }
                                 </tbody>
                             </table>
+                            <br />
+                            <button
+                                type="submit"
+                                style={ {
+                                    backgroundColor: "#007bff",
+                                    color: "white",
+                                    padding: "10px 20px",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                } }
+                            >
+                                Submit the mapping
+                            </button>
                         </div>
                     ) }
                 </>

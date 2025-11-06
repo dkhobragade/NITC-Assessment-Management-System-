@@ -10,12 +10,11 @@ import { useState } from 'react';
 
 const Header = () =>
 {
-    const [ roleTypeValue ] = useAtom( roleType )
     const navigate = useNavigate()
     const [ user ] = useAtom( userAtom );
     const [ showBox, setShowBox ] = useState( false );
 
-    console.log( "userAtom", user )
+
     const handleLogout = () =>
     {
         postWrapper( 'adminAuth/adminLogout' ).then( ( resp ) =>
@@ -79,6 +78,8 @@ const Header = () =>
                             } }
                         >
                             Name: { user.name || "Logged User" }
+                            <br />
+                            Email: { user.email }
                             <br />
                             ID: { user.id || "Logged User" }
                         </p>

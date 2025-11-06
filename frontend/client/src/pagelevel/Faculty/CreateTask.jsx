@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { postWrapper } from "../../lib/api/postWrapper";
+import { useAtom } from "jotai";
+import { userAtom } from "../../lib/store/userAtom";
 
 const CreateTask = () =>
 {
@@ -10,6 +12,7 @@ const CreateTask = () =>
         dueDate: "",
     } );
     const [ pdfFile, setPdfFile ] = useState( null );
+    const [ user ] = useAtom( userAtom )
 
     const handleChange = ( e ) =>
     {
@@ -24,6 +27,7 @@ const CreateTask = () =>
         formData.append( "title", task.title );
         formData.append( "description", task.description );
         formData.append( "dueDate", task.dueDate );
+        formData.append( "facultyEmail", user.email )
         if ( pdfFile ) formData.append( "pdf", pdfFile );
 
         try

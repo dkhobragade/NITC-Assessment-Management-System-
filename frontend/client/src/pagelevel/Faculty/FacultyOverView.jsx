@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
 import { useState } from "react";
+import { postWrapper } from "../../lib/api/postWrapper";
+import { useAtom } from "jotai";
+import { userAtom } from "../../lib/store/userAtom";
+import { toast } from "react-toastify";
 
 const FacultyOverView = () =>
 {
@@ -9,22 +13,37 @@ const FacultyOverView = () =>
         totalEvalutor: 0,
         totalTask: 0
     } )
+    const [ user ] = useAtom( userAtom )
 
     const [ tasks, setTasks ] = useState( [] );
 
     const [ showTaskBox, setShowTaskBox ] = useState( false )
+    const [ courseName, setCourseName ] = useState( '' )
 
     useEffect( () =>
     {
         getEvalutorCount()
         getTaskCount()
         getTaskDetails()
+        getAssignedCourse()
     }, [] )
+
+    const getAssignedCourse = () =>
+    {
+        postWrapper( 'facultyAuth/get-assigned-courses', { facultyId: user.sID } ).then( ( resp ) =>
+        {
+            console.log( "lll", resp.tasks );
+            setCourseName( resp.data[ 0 ].courseName )
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message || "Failed to fetch tasks" );
+        } )
+    }
 
 
     const getTaskDetails = () =>
     {
-        fetchWrapper( 'facultyAuth/all-tasks' ).then( ( resp ) =>
+        postWrapper( 'facultyAuth/all-tasks', { facultyId: user.sID } ).then( ( resp ) =>
         {
             setTasks( resp.tasks );
         } ).catch( ( err ) =>
@@ -49,7 +68,7 @@ const FacultyOverView = () =>
 
     const getTaskCount = () =>
     {
-        fetchWrapper( "facultyAuth/task-count" ).then( ( resp ) =>
+        postWrapper( "facultyAuth/task-count", { facultyId: user.sID } ).then( ( resp ) =>
         {
             setData( ( prev ) => ( {
                 ...prev,
@@ -91,6 +110,11 @@ const FacultyOverView = () =>
                     marginBottom: "40px",
                 } }
             >
+                <div style={ cardStyle }>
+                    <h3 style={ { marginBottom: "8px", color: "#007bff" } }>Assigned Subject </h3>
+                    <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ courseName || "NA" }</p>
+                </div>
+
                 <div style={ cardStyle } onClick={ handleTaskCreated }>
                     <h3 style={ { marginBottom: "8px", color: "#007bff" } }>Tasks Created</h3>
                     <p style={ { fontSize: "22px", fontWeight: "bold" } }>{ data.totalTask }</p>
