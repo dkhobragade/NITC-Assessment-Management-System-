@@ -1,22 +1,13 @@
 import { useState } from 'react';
-import
-{
-    Card,
-    Title,
-    Select,
-    Button,
-    Group,
-    Box,
-    Text,
-} from '@mantine/core';
-import { IconFileAnalytics } from '@tabler/icons-react';
+import { Select, Button, Card, Title, Group, Box, Text } from '@mantine/core';
 
-const GenerateReport = () =>
+const AssignCourse = () =>
 {
     const [ faculty, setFaculty ] = useState( '' );
     const [ course, setCourse ] = useState( '' );
     const [ success, setSuccess ] = useState( false );
 
+    // Dummy data — later replace with API data
     const facultyOptions = [
         { value: 'john_doe', label: 'John Doe' },
         { value: 'jane_smith', label: 'Jane Smith' },
@@ -29,25 +20,28 @@ const GenerateReport = () =>
         { value: 'cs103', label: 'CS103 - Database Systems' },
     ];
 
-    const handleGenerate = ( e ) =>
+    const handleSubmit = ( e ) =>
     {
         e.preventDefault();
 
-        if ( !faculty || !course ) return alert( 'Please select both faculty and course.' );
+        if ( !faculty || !course ) return alert( 'Please select both Faculty and Course.' );
 
-        console.log( 'Generating report for:', { faculty, course } );
+        console.log( 'Assigned:', { faculty, course } );
         setSuccess( true );
-        setTimeout( () => setSuccess( false ), 3000 );
+
+        // reset after submission
+        setFaculty( '' );
+        setCourse( '' );
     };
 
     return (
         <Box p="lg">
             <Title order={ 2 } mb="lg">
-                Generate Report
+                Assign Course to Faculty
             </Title>
 
-            <Card shadow="sm" padding="xl" radius="md" withBorder maw={ 700 }>
-                <form onSubmit={ handleGenerate }>
+            <Card shadow="sm" padding="lg" radius="md" withBorder maw={ 600 }>
+                <form onSubmit={ handleSubmit }>
                     <Select
                         label="Select Faculty"
                         placeholder="Choose a faculty member"
@@ -69,17 +63,12 @@ const GenerateReport = () =>
                     />
 
                     <Group justify="flex-end" mt="lg">
-                        <Button
-                            type="submit"
-                            leftSection={ <IconFileAnalytics size={ 18 } /> }
-                        >
-                            Generate Report
-                        </Button>
+                        <Button type="submit">Assign Course</Button>
                     </Group>
 
                     { success && (
                         <Text c="green" mt="md" fw={ 500 }>
-                            ✅ Report generated successfully! (You can now export or view it)
+                            ✅ Course successfully assigned!
                         </Text>
                     ) }
                 </form>
@@ -88,4 +77,4 @@ const GenerateReport = () =>
     );
 };
 
-export default GenerateReport;
+export default AssignCourse;
