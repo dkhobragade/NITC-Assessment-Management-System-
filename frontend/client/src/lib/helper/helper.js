@@ -15,7 +15,6 @@ export const adminSidebar = [
 
 export const evaluatorSidebar = [
   "Overview",
-  "Manage Student",
   "Generate Report"
 ];
 

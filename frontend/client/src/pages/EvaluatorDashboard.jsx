@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { evaluatorSidebar } from "../lib/helper/helper"
 import Header from "../lowlevel/header"
+import EvalutorSidebar from "../pagelevel/Evaluator/SideBar";
 
 const EvaluatorDashboard = () =>
 {
@@ -37,7 +38,7 @@ const EvaluatorDashboard = () =>
             </div>
 
             <div style={ { width: "85%", padding: '10px' } }>
-                <EvaluatorDashboard selectedType={ selected } />
+                <EvalutorSidebar selectedType={ selected } />
             </div >
         </div >
     </>

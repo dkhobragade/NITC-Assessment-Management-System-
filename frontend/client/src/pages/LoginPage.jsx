@@ -51,7 +51,8 @@ const LoginPage = () =>
           name: resp.fullName,
           email: resp.email,
           role: resp.role,
-          id: resp.id
+          id: resp.id,
+          sID: resp._id
         } )
         toast.success( resp.message )
         navigate( config.redirect )

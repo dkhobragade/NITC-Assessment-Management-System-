@@ -101,3 +101,40 @@ npm install
 # Run servers
 npm start                            # Frontend
 python manage.py runserver           # Django backend (example)
+
+
+Created Task JSON
+{message: "Task created successfully",…}
+message
+:
+"Task created successfully"
+task
+:
+{title: "Task Json", description: "Desp JSON", dueDate: "2045-12-12T00:00:00.000Z",…}
+createdAt
+:
+"2025-11-05T19:37:22.358Z"
+createdBy
+:
+"690b9ee04eeb76b430547451"
+description
+:
+"Desp JSON"
+dueDate
+:
+"2045-12-12T00:00:00.000Z"
+pdfUrl
+:
+"uploads\\1762371442104.pdf"
+title
+:
+"Task Json"
+updatedAt
+:
+"2025-11-05T19:37:22.358Z"
+__v
+:
+0
+_id
+:
+"690ba77204f99f3143f45bb9"

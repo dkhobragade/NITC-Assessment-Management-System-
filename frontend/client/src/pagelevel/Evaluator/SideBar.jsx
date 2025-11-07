@@ -1,14 +1,12 @@
 import EvaluatorOverView from '../Evaluator/EvaluatorOverView'
-import ManageStudent from './ManageStudent';
-
+import GenerateReport from '../Evaluator/GenerateReport'
 
 const EvalutorSidebar = ( { selectedType } ) =>
 {
 
     const renderSelectedType = () =>
     {
-        if ( selectedType === "Overview" ) return <EvaluatorOverView />;
-        else if ( selectedType === "Manage Student" ) return <ManageStudent />;
+        if ( selectedType == "Overview" ) return <EvaluatorOverView />;
         else return <GenerateReport />;
     };
     return <>{ renderSelectedType() }</>

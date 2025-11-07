@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { generateToken } from "../../utils/utils.js";
 import { Course } from "../../models/Courses.js";
 import { AssignedCourse } from "../../models/assignedCourse.js";
+import EvalutorUser from "../../models/EvalutorUser.js";
 
 
 export const adminSignup = async ( req, res ) =>
@@ -212,8 +213,9 @@ export const assignCourse = async ( req, res ) =>
       return res.status( 400 ).json( { message: "Faculty and Course are required" } );
     }
 
-    const facultyName = await EvalutorUser.findById( faculty );
-    const courseData = await Courses.findOne( { courseCode: course } );
+    const facultyName = await FacultyUser.findOne({ id: faculty });
+
+    const courseData = await Course.findOne( { courseCode: course } );
 
     const existingAssignment = await AssignedCourse.findOne( {
       facultyID: faculty,

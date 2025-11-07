@@ -3,13 +3,15 @@ import mongoose from "mongoose";
 const mappingSchema = new mongoose.Schema(
   {
     evaluator: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "EvalutorUser",
+      type: Object,
       required: true,
     },
     student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentUser",
+      type: Object,
+      required: true,
+    },
+    facultyId: {
+      type: String, // store the faculty ID
       required: true,
     },
   },
