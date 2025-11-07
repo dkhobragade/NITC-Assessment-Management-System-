@@ -1,34 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Routes, Route } from 'react-router-dom'
+import LandingPage from './pageLevel/LandingPage'
+import SignupPage from './pageLevel/SignupPage'
+import LoginPage from './pageLevel/LoginPage'
+import AdminOverview from './pageLevel/overview/AdminOverview'
+import FacultyOverview from './pageLevel/overview/FacultyOverview'
+import EvaluatorOverview from './pageLevel/overview/EvaluatorOverview'
+import StudentOverview from './pageLevel/overview/StudentOverview'
+import CommonLayout from './layout/CommonLayout'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+function App ()
+{
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Routes>
+      <Route path="/" element={ <LandingPage /> } />
+      <Route path="/signup" element={ <SignupPage /> } />
+      <Route path="/login" element={ <LoginPage /> } />
+
+      {/* Protected / Dashboard Routes (with Navbar) */ }
+      <Route element={ <CommonLayout /> }>
+        <Route path="/admin-overview" element={ <AdminOverview /> } />
+        <Route path="/faculty-overview" element={ <FacultyOverview /> } />
+        <Route path="/evaluator-overview" element={ <EvaluatorOverview /> } />
+        <Route path="/student-overview" element={ <StudentOverview /> } />
+      </Route>
+    </Routes>
   )
 }
 

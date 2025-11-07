@@ -1,8 +1,7 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  /* padding: 2rem; */
 }
 
 .logo {
@@ -40,3 +39,17 @@
 .read-the-docs {
   color: #888;
 }
+
+.title {
+  font-family: Outfit, var(--mantine-font-family);
+  font-weight: 500;
+}
+
+.subtitle {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-sm);
+  text-align: center;
+  margin-top: 5px;
+}
+
+
