@@ -1,4 +1,4 @@
 import {atom} from 'jotai'
 
 
-export const selectedRole = atom("Admin")
+export const selectedRole = atom("Evaluator")

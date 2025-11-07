@@ -16,7 +16,7 @@ import CreateTask from './pageLevel/faculty/CreateTask'
 import ManageEvalutor from './pageLevel/faculty/ManageEvalutor'
 import ManageStudent from './pageLevel/faculty/ManageStudent'
 import MapEvalutor from './pageLevel/faculty/MapEvalutor'
-import AssignedStudent from './pageLevel/student/Task'
+import AssignedStudent from './pageLevel/evalutor/AssignedStudent'
 import Task from './pageLevel/student/Task'
 import './App.css'
 import Result from './pageLevel/student/Result'
@@ -38,7 +38,7 @@ function App ()
         <Route path="/evaluator-overview" element={ <EvaluatorOverview /> } />
         <Route path="/student-overview" element={ <StudentOverview /> } />
         <Route path="/admin-manage-faculty" element={ <ManageFaculty /> } />
-        <Route path="/admin-manage-course" element={ <ManageCourse /> } />
+        <Route path="/admin-add-course" element={ <ManageCourse /> } />
         <Route path="/admin-assign-course" element={ <AssignCourse /> } />
         <Route path="/admin-generate-report" element={ <AdminGenerateReport /> } />
         <Route path="/faculty-generate-report" element={ <FacultyGenerateReport /> } />

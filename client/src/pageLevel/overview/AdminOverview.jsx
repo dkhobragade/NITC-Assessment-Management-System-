@@ -2,7 +2,6 @@ import { Card, Grid, Text, Title } from '@mantine/core';
 
 const AdminOverview = () =>
 {
-    // For now, static values — later you can fetch from API
     const totalFaculty = 12;
     const totalCourses = 8;
 
