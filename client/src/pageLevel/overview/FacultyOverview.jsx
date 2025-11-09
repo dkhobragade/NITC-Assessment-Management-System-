@@ -1,10 +1,32 @@
 import { Card, Grid, Text, Title } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { fetchWrapper } from '../../lib/api/fetchWrapper';
+import { toast } from 'react-toastify';
 
 const FacultyOverview = () =>
 {
 
-    const assignedCourse = 12;
+    const [ assignedCourse, setAssignedCourse ] = useState( '' )
     const taskCreated = 8;
+
+    useEffect( () =>
+    {
+        getAssignedCourse()
+    }, [] )
+
+    const getAssignedCourse = () =>
+    {
+        fetchWrapper( 'faculty/assigned-courses' ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                setAssignedCourse( resp.assignedCourses[ 0 ].name )
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } )
+    }
 
 
     return <div style={ { padding: '20px' } }>

@@ -15,6 +15,7 @@ export function Navbar ()
     const [ navbarData, setNavbarData ] = useState( adminNavbar );
     const [ selectedProfile ] = useAtom( selectedRole );
     const setUserAtom = useSetAtom( userAtom )
+    const setSelectedRole = useSetAtom( selectedRole )
     const navigate = useNavigate()
 
     useEffect( () =>
@@ -47,6 +48,8 @@ export function Navbar ()
         {
             toast.success( resp.message )
             navigate( '/' )
+            setUserAtom( null );
+            setSelectedRole( "Admin" );
         } ).catch( ( error ) =>
         {
             toast.success( error.message )

@@ -18,6 +18,7 @@ const LoginPage = () =>
     const [ selectedProfile ] = useAtom( selectedRole )
     const [ isLoading, setIsLoading ] = useState( false )
     const setUserAtom = useSetAtom( userAtom )
+    const setSelectedRole = useSetAtom( selectedRole )
 
     const onClickSubmit = () =>
     {
@@ -36,6 +37,12 @@ const LoginPage = () =>
                 if ( resp.message )
                 {
                     toast.success( resp.message )
+                    setUserAtom( {
+                        name: resp.user.name,
+                        email: resp.user.email,
+                        role: resp.user.role,
+                        collegeId: resp.user.collegeId,
+                    } );
 
                     if ( resp.user.role === "Admin" )
                     {
@@ -51,7 +58,7 @@ const LoginPage = () =>
                         navigate( "/student-overview" );
                     }
                 }
-                setUserAtom( { name: resp.user.name, email: resp.user.email, role: resp.user.role, collgeId: resp.user.collegeId } )
+                setSelectedRole( resp.user.role );
             } ).catch( ( error ) =>
             {
                 toast.info( error.message )
