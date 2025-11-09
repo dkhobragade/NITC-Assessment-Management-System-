@@ -1,9 +1,47 @@
 import { Card, Grid, Text, Title } from '@mantine/core';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { fetchWrapper } from '../../lib/api/fetchWrapper'
+import { toast } from 'react-toastify';
 
 const AdminOverview = () =>
 {
-    const totalFaculty = 12;
-    const totalCourses = 8;
+    const [ coursesCount, setCoursesCount ] = useState( 0 )
+    const [ facultyCount, setFacultyCount ] = useState( 0 )
+
+    useEffect( () =>
+    {
+        getFacultyCount()
+        getCoursesCount()
+    }, [] )
+
+    const getFacultyCount = () =>
+    {
+        fetchWrapper( 'admin/faculty-count' ).then( ( resp ) =>
+        {
+            if ( resp )
+            {
+                setFacultyCount( resp.count )
+            }
+        } ).catch( ( error ) =>
+        {
+            toast.error( error.message.message )
+        } )
+    }
+
+    const getCoursesCount = () =>
+    {
+        fetchWrapper( 'admin/courses-count' ).then( ( resp ) =>
+        {
+            if ( resp )
+            {
+                setCoursesCount( resp.count )
+            }
+        } ).catch( ( error ) =>
+        {
+            toast.error( error.message.message )
+        } )
+    }
 
     return (
         <div style={ { padding: '20px' } }>
@@ -17,7 +55,7 @@ const AdminOverview = () =>
                             Total Faculty
                         </Text>
                         <Title order={ 1 } c="blue">
-                            { totalFaculty }
+                            { facultyCount }
                         </Title>
                     </Card>
                 </Grid.Col>
@@ -29,7 +67,7 @@ const AdminOverview = () =>
                             Total Courses
                         </Text>
                         <Title order={ 1 } c="green">
-                            { totalCourses }
+                            { coursesCount }
                         </Title>
                     </Card>
                 </Grid.Col>

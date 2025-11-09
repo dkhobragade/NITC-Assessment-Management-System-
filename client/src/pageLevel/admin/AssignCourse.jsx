@@ -1,37 +1,103 @@
 import { useState } from 'react';
-import { Select, Button, Card, Title, Group, Box, Text } from '@mantine/core';
+import { Select, Button, Card, Title, Group, Box, Table } from '@mantine/core';
+import { useEffect } from 'react';
+import { fetchWrapper } from '../../lib/api/fetchWrapper';
+import { toast } from 'react-toastify';
+import { postWrapper } from '../../lib/api/postWrapper';
 
 const AssignCourse = () =>
 {
     const [ faculty, setFaculty ] = useState( '' );
     const [ course, setCourse ] = useState( '' );
-    const [ success, setSuccess ] = useState( false );
+    const [ isLoading, setIsLoading ] = useState( false );
+    const [ facultyOptions, setFacultyOptions ] = useState( [] );
+    const [ courseOptions, setCourseOptions ] = useState( [] );
+    const [ assignedCourses, setAssignedCourses ] = useState( [] );
 
-    // Dummy data — later replace with API data
-    const facultyOptions = [
-        { value: 'john_doe', label: 'John Doe' },
-        { value: 'jane_smith', label: 'Jane Smith' },
-        { value: 'michael_brown', label: 'Michael Brown' },
-    ];
+    useEffect( () =>
+    {
+        getFacultyOptions()
+        getCoursesOptions()
+        getAssignedCourses()
+    }, [] )
 
-    const courseOptions = [
-        { value: 'cs101', label: 'CS101 - Data Structures' },
-        { value: 'cs102', label: 'CS102 - Operating Systems' },
-        { value: 'cs103', label: 'CS103 - Database Systems' },
-    ];
+    const getAssignedCourses = () =>
+    {
+        fetchWrapper( "admin/assigned-courses" ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                setAssignedCourses( resp.assigned )
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } )
+    }
+
+    const getFacultyOptions = () =>
+    {
+        fetchWrapper( "admin/available-faculties" ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                setFacultyOptions(
+                    resp.faculties.map( ( f ) => ( {
+                        value: f._id,
+                        label: `${ f.name }`,
+                    } ) )
+                );
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } )
+    }
+    const getCoursesOptions = () =>
+    {
+        fetchWrapper( "admin/unassigned-courses" ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                setCourseOptions(
+                    resp.courses.map( ( c ) => ( {
+                        value: c._id,
+                        label: `${ c.code } - ${ c.name }`,
+                    } ) )
+                );
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } )
+    }
+
+
 
     const handleSubmit = ( e ) =>
     {
         e.preventDefault();
 
-        if ( !faculty || !course ) return alert( 'Please select both Faculty and Course.' );
+        if ( !faculty || !course ) return toast.info( 'Please select both Faculty and Course.' );
+        setIsLoading( true );
 
-        console.log( 'Assigned:', { faculty, course } );
-        setSuccess( true );
-
-        // reset after submission
-        setFaculty( '' );
-        setCourse( '' );
+        postWrapper( 'admin/assign-course', {
+            facultyId: faculty,
+            courseId: course
+        } ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                toast.success( resp.message )
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } ).finally( () =>
+        {
+            setFaculty( '' );
+            setCourse( '' );
+        } )
     };
 
     return (
@@ -63,16 +129,34 @@ const AssignCourse = () =>
                     />
 
                     <Group justify="flex-end" mt="lg">
-                        <Button type="submit">Assign Course</Button>
+                        <Button loading={ isLoading } type="submit">Assign Course</Button>
                     </Group>
-
-                    { success && (
-                        <Text c="green" mt="md" fw={ 500 }>
-                            ✅ Course successfully assigned!
-                        </Text>
-                    ) }
                 </form>
             </Card>
+            <Title order={ 3 } mt="xl" mb="sm">
+                Assigned Courses
+            </Title>
+
+            <Table striped highlightOnHover withBorder>
+                <Table.Thead>
+                    <Table.Tr>
+                        <Table.Th>Faculty Name</Table.Th>
+                        <Table.Th>Email</Table.Th>
+                        <Table.Th>Course Name</Table.Th>
+                        <Table.Th>Course Code</Table.Th>
+                    </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                    { assignedCourses.map( ( row ) => (
+                        <Table.Tr key={ row._id }>
+                            <Table.Td>{ row.faculty?.name }</Table.Td>
+                            <Table.Td>{ row.faculty?.email }</Table.Td>
+                            <Table.Td>{ row.name }</Table.Td>
+                            <Table.Td>{ row.code }</Table.Td>
+                        </Table.Tr>
+                    ) ) }
+                </Table.Tbody>
+            </Table>
         </Box>
     );
 };

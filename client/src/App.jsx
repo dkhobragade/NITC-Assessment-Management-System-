@@ -18,20 +18,22 @@ import ManageStudent from './pageLevel/faculty/ManageStudent'
 import MapEvalutor from './pageLevel/faculty/MapEvalutor'
 import AssignedStudent from './pageLevel/evalutor/AssignedStudent'
 import Task from './pageLevel/student/Task'
-import './App.css'
 import Result from './pageLevel/student/Result'
 import AssignCourse from './pageLevel/admin/AssignCourse'
+import { ToastContainer } from 'react-toastify'
+import './App.css'
 
 function App ()
 {
 
-  return (
+  return <>
+
     <Routes>
       <Route path="/" element={ <LandingPage /> } />
       <Route path="/signup" element={ <SignupPage /> } />
       <Route path="/login" element={ <LoginPage /> } />
 
-      {/* Protected / Dashboard Routes (with Navbar) */ }
+
       <Route element={ <CommonLayout /> }>
         <Route path="/admin-overview" element={ <AdminOverview /> } />
         <Route path="/faculty-overview" element={ <FacultyOverview /> } />
@@ -52,7 +54,8 @@ function App ()
         <Route path="/student-result" element={ <Result /> } />
       </Route>
     </Routes>
-  )
+    <ToastContainer autoClose={ 5000 } position="bottom-right" />
+  </>
 }
 
 export default App
