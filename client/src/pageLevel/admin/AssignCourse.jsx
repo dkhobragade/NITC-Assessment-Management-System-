@@ -95,6 +95,7 @@ const AssignCourse = () =>
             toast.error( err.message )
         } ).finally( () =>
         {
+            setIsLoading( false );
             setFaculty( '' );
             setCourse( '' );
         } )

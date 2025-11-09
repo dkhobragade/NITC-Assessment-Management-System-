@@ -1,167 +1,166 @@
-import { useState } from 'react';
-import
-{
-    Card,
-    Title,
-    Group,
-    Button,
-    Box,
-    Text,
-    FileButton,
-    Table,
-    Select,
-    Divider,
-} from '@mantine/core';
-import { IconUpload, IconRefresh, IconUserCheck } from '@tabler/icons-react';
+import { useState, useEffect } from "react";
+import { Title, Container, Grid, Card, Text, Button, Group, FileButton, Stack, Select, Table } from "@mantine/core";
+import { IconUpload, IconRefresh, IconUserCheck } from "@tabler/icons-react";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
+import { postWrapper } from "../../lib/api/postWrapper";
 
-const MapEvalutor = () =>
+const FacultyDashboard = () =>
 {
+    const [ tasks, setTasks ] = useState( [] );
+    const [ taskCount, setTaskCount ] = useState( 0 );
+    const [ loading, setLoading ] = useState( true );
+
     const [ evaluatorFile, setEvaluatorFile ] = useState( null );
     const [ studentFile, setStudentFile ] = useState( null );
+
     const [ manualMappings, setManualMappings ] = useState( [] );
-    const [ selectedEvaluator, setSelectedEvaluator ] = useState( '' );
-    const [ selectedStudent, setSelectedStudent ] = useState( '' );
+    const [ selectedEvaluator, setSelectedEvaluator ] = useState( "" );
+    const [ selectedStudent, setSelectedStudent ] = useState( "" );
 
-    // Dummy data — replace with actual data after upload or API
-    const evaluatorOptions = [
-        { value: 'eval1', label: 'Evaluator 1' },
-        { value: 'eval2', label: 'Evaluator 2' },
-        { value: 'eval3', label: 'Evaluator 3' },
-    ];
+    const [ evaluators, setEvaluators ] = useState( [] );
+    const [ students, setStudents ] = useState( [] );
 
-    const studentOptions = [
-        { value: 'stu1', label: 'Student 1' },
-        { value: 'stu2', label: 'Student 2' },
-        { value: 'stu3', label: 'Student 3' },
-    ];
-
-    const handleRandomAssign = () =>
+    useEffect( () =>
     {
-        alert( '✅ Random assignment completed!' );
+        fetchTasks();
+    }, [] );
+
+    const fetchTasks = async () =>
+    {
+        setLoading( true );
+        try
+        {
+            const resp = await fetchWrapper( "faculty/faculty-tasks" );
+            if ( resp.success )
+            {
+                setTasks( resp.tasks );
+                setTaskCount( resp.taskCount );
+            }
+        } catch ( err )
+        {
+            console.error( err );
+        } finally
+        {
+            setLoading( false );
+        }
     };
 
-    const handleManualAssign = () =>
+    const handleUploadExcel = async () =>
     {
-        if ( !selectedEvaluator || !selectedStudent )
+        if ( !evaluatorFile || !studentFile )
         {
-            alert( 'Please select both evaluator and student!' );
+            alert( "Please select both evaluator and student files" );
             return;
         }
 
-        const newMapping = {
-            evaluator: evaluatorOptions.find( ( e ) => e.value === selectedEvaluator )?.label,
-            student: studentOptions.find( ( s ) => s.value === selectedStudent )?.label,
-        };
+        const formData = new FormData();
+        formData.append( "evaluators", evaluatorFile );
+        formData.append( "students", studentFile );
 
-        setManualMappings( [ ...manualMappings, newMapping ] );
-        setSelectedEvaluator( '' );
-        setSelectedStudent( '' );
+        try
+        {
+            const resp = await postWrapper( "faculty/upload-excel", formData, true ); // pass true for FormData
+            if ( resp.success )
+            {
+                alert( "Files uploaded and users saved successfully!" );
+                setEvaluators( resp.evaluators );
+                setStudents( resp.students );
+            }
+        } catch ( err )
+        {
+            console.error( err );
+            alert( "File upload failed!" );
+        }
+    };
+
+
+    const handleRandomMapping = async () =>
+    {
+        try
+        {
+            await postWrapper( "faculty/random-map", {} );
+            alert( "Random mapping completed!" );
+        } catch ( err )
+        {
+            console.error( err );
+            alert( "Mapping failed" );
+        }
+    };
+
+    const handleManualMapping = () =>
+    {
+        if ( !selectedEvaluator || !selectedStudent ) return;
+
+        const newMap = {
+            evaluator: evaluators.find( ( e ) => e._id === selectedEvaluator )?.name,
+            student: students.find( ( s ) => s._id === selectedStudent )?.name,
+        };
+        setManualMappings( [ ...manualMappings, newMap ] );
+        setSelectedEvaluator( "" );
+        setSelectedStudent( "" );
     };
 
     return (
-        <Box p="lg">
-            <Title order={ 2 } mb="lg">
-                Map Evaluator to Student
-            </Title>
+        <Container size="xl" py="lg">
+            <Stack spacing="lg">
 
-            {/* Upload Section */ }
-            <Card shadow="sm" padding="xl" radius="md" withBorder mb="lg" maw={ 800 }>
-                <Title order={ 4 } mb="md">
-                    Upload Excel Files
-                </Title>
-
-                <Group mb="md">
-                    <FileButton onChange={ setEvaluatorFile } accept=".xlsx,.csv">
-                        { ( props ) => (
-                            <Button variant="light" leftSection={ <IconUpload size={ 18 } /> } { ...props }>
-                                Upload Evaluator File
-                            </Button>
-                        ) }
-                    </FileButton>
-                    { evaluatorFile && <Text size="sm">{ evaluatorFile.name }</Text> }
-                </Group>
-
-                <Group>
-                    <FileButton onChange={ setStudentFile } accept=".xlsx,.csv">
-                        { ( props ) => (
-                            <Button variant="light" leftSection={ <IconUpload size={ 18 } /> } { ...props }>
-                                Upload Student File
-                            </Button>
-                        ) }
-                    </FileButton>
-                    { studentFile && <Text size="sm">{ studentFile.name }</Text> }
-                </Group>
-
-                <Divider my="lg" />
-
-                <Group justify="flex-end">
-                    <Button color="blue" leftSection={ <IconRefresh size={ 18 } /> } onClick={ handleRandomAssign }>
-                        Random Assign
-                    </Button>
-                </Group>
-            </Card>
-
-            {/* Manual Assignment Section */ }
-            <Card shadow="sm" padding="xl" radius="md" withBorder mb="lg" maw={ 800 }>
-                <Title order={ 4 } mb="md">
-                    Manual Assignment
-                </Title>
-
-                <Group grow mb="md">
-                    <Select
-                        label="Select Evaluator"
-                        placeholder="Choose evaluator"
-                        data={ evaluatorOptions }
-                        value={ selectedEvaluator }
-                        onChange={ setSelectedEvaluator }
-                    />
-                    <Select
-                        label="Select Student"
-                        placeholder="Choose student"
-                        data={ studentOptions }
-                        value={ selectedStudent }
-                        onChange={ setSelectedStudent }
-                    />
-                </Group>
-
-                <Group justify="flex-end">
-                    <Button
-                        color="green"
-                        leftSection={ <IconUserCheck size={ 18 } /> }
-                        onClick={ handleManualAssign }
-                    >
-                        Assign
-                    </Button>
-                </Group>
-            </Card>
-
-            {/* Mapping Table */ }
-            { manualMappings.length > 0 && (
-                <Card shadow="sm" padding="xl" radius="md" withBorder maw={ 800 }>
-                    <Title order={ 4 } mb="md">
-                        Manual Assignments
-                    </Title>
-
-                    <Table striped highlightOnHover>
-                        <Table.Thead>
-                            <Table.Tr>
-                                <Table.Th>Evaluator</Table.Th>
-                                <Table.Th>Student</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            { manualMappings.map( ( map, index ) => (
-                                <Table.Tr key={ index }>
-                                    <Table.Td>{ map.evaluator }</Table.Td>
-                                    <Table.Td>{ map.student }</Table.Td>
-                                </Table.Tr>
-                            ) ) }
-                        </Table.Tbody>
-                    </Table>
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                    <Title order={ 4 }>Upload Excel Files</Title>
+                    <Group>
+                        <FileButton onChange={ setEvaluatorFile } accept=".xlsx,.csv">
+                            { ( props ) => <Button { ...props } leftIcon={ <IconUpload /> }>Upload Evaluator</Button> }
+                        </FileButton>
+                        <FileButton onChange={ setStudentFile } accept=".xlsx,.csv">
+                            { ( props ) => <Button { ...props } leftIcon={ <IconUpload /> }>Upload Student</Button> }
+                        </FileButton>
+                        <Button onClick={ handleUploadExcel }>Save</Button>
+                    </Group>
                 </Card>
-            ) }
-        </Box>
+
+                {/* Mapping */ }
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                    <Title order={ 4 }>Mapping Evaluators → Students</Title>
+                    <Group mb="md">
+                        <Select
+                            label="Evaluator"
+                            placeholder="Select evaluator"
+                            data={ evaluators.map( ( e ) => ( { value: e._id, label: e.name } ) ) }
+                            value={ selectedEvaluator }
+                            onChange={ setSelectedEvaluator }
+                        />
+                        <Select
+                            label="Student"
+                            placeholder="Select student"
+                            data={ students.map( ( s ) => ( { value: s._id, label: s.name } ) ) }
+                            value={ selectedStudent }
+                            onChange={ setSelectedStudent }
+                        />
+                        <Button onClick={ handleManualMapping } leftIcon={ <IconUserCheck /> }>Assign</Button>
+                    </Group>
+                    <Button onClick={ handleRandomMapping } leftIcon={ <IconRefresh /> }>Random Mapping</Button>
+
+                    { manualMappings.length > 0 && (
+                        <Table striped highlightOnHover mt="md">
+                            <thead>
+                                <tr>
+                                    <th>Evaluator</th>
+                                    <th>Student</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                { manualMappings.map( ( m, i ) => (
+                                    <tr key={ i }>
+                                        <td>{ m.evaluator }</td>
+                                        <td>{ m.student }</td>
+                                    </tr>
+                                ) ) }
+                            </tbody>
+                        </Table>
+                    ) }
+                </Card>
+            </Stack>
+        </Container>
     );
 };
 
-export default MapEvalutor;
+export default FacultyDashboard;

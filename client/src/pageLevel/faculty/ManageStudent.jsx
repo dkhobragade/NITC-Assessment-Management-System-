@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Title, Container, Button, Badge, Loader, Group, Text, Paper } from "@mantine/core";
+import { Table, Title, Container, Button, Badge, Loader, Group, Text, Paper, Stack } from "@mantine/core";
 import { toast } from "react-toastify";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
 import { putWrapper } from "../../lib/api/putWrapper";
@@ -12,8 +12,8 @@ const ManageStudent = () =>
 
     useEffect( () =>
     {
-        fetchStudent()
-    }, [] )
+        fetchStudent();
+    }, [] );
 
     const fetchStudent = () =>
     {
@@ -23,45 +23,52 @@ const ManageStudent = () =>
             {
                 if ( resp.success )
                 {
-                    if ( !resp.student || resp.student.length === 0 )
-                    {
-                        setStudentList( [] );
-                    } else
-                    {
-                        setStudentList( resp.student );
-                    }
+                    setStudentList( resp.student || [] );
                 }
             } )
             .catch( ( error ) =>
             {
                 toast.error( error.message );
             } )
-            .finally( () =>
-            {
-                setLoading( false );
-            } );
+            .finally( () => setLoading( false ) );
     };
-
 
     const handleApprove = ( id ) =>
     {
-        setUpdating( id )
-        putWrapper( `faculty/approve-student/${ id }` ).then( ( resp ) =>
-        {
-
-            if ( resp.success )
+        setUpdating( id );
+        putWrapper( `faculty/approve-student/${ id }` )
+            .then( ( resp ) =>
             {
-                toast.success( resp.message )
-                fetchStudent()
-            }
-        } ).catch( ( err ) =>
-        {
-            toast.error( err.message )
-        } ).finally( () =>
-        {
-            setUpdating( null )
-        } )
+                if ( resp.success )
+                {
+                    toast.success( resp.message );
+                    fetchStudent();
+                }
+            } )
+            .catch( ( err ) => toast.error( err.message ) )
+            .finally( () => setUpdating( null ) );
     };
+
+    const handleExportExcel = async () =>
+    {
+        try
+        {
+            const blob = await fetchWrapper( "faculty/export-students", {}, true );
+            const url = window.URL.createObjectURL( blob );
+            const a = document.createElement( "a" );
+            a.href = url;
+            a.download = "students.xlsx";
+            document.body.appendChild( a );
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL( url );
+        } catch ( err )
+        {
+            console.error( err );
+            toast.error( "Failed to download Excel file" );
+        }
+    };
+
 
     const rows = studentList.map( ( student ) => (
         <Table.Tr key={ student._id }>
@@ -87,38 +94,46 @@ const ManageStudent = () =>
         </Table.Tr>
     ) );
 
+    return (
+        <Container size="xl" py="lg">
+            <Stack spacing="md">
+                <Group position="apart">
+                    <Title order={ 2 } mb="lg" ta="left">
+                        Manage Students
+                    </Title>
+                    <Button color="green" onClick={ handleExportExcel }>
+                        Export to Excel
+                    </Button>
+                </Group>
 
-    return <Container size="xl" py="lg">
-        <Title order={ 2 } mb="lg" ta="left">
-            Manage Students
-        </Title>
-
-        { loading ? (
-            <Group justify="center" mt="xl">
-                <Loader size="lg" />
-            </Group>
-        ) : (
-            <Paper shadow="sm" p="md" radius="md" withBorder>
-                { studentList.length === 0 ? (
-                    <Text ta="center" c="dimmed">
-                        No student data found.
-                    </Text>
+                { loading ? (
+                    <Group justify="center" mt="xl">
+                        <Loader size="lg" />
+                    </Group>
                 ) : (
-                    <Table striped highlightOnHover withTableBorder>
-                        <Table.Thead>
-                            <Table.Tr>
-                                <Table.Th>Name</Table.Th>
-                                <Table.Th>Email</Table.Th>
-                                <Table.Th>College ID</Table.Th>
-                                <Table.Th>Status</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>{ rows }</Table.Tbody>
-                    </Table>
+                    <Paper shadow="sm" p="md" radius="md" withBorder>
+                        { studentList.length === 0 ? (
+                            <Text ta="center" c="dimmed">
+                                No student data found.
+                            </Text>
+                        ) : (
+                            <Table striped highlightOnHover withTableBorder>
+                                <Table.Thead>
+                                    <Table.Tr>
+                                        <Table.Th>Name</Table.Th>
+                                        <Table.Th>Email</Table.Th>
+                                        <Table.Th>College ID</Table.Th>
+                                        <Table.Th>Status</Table.Th>
+                                    </Table.Tr>
+                                </Table.Thead>
+                                <Table.Tbody>{ rows }</Table.Tbody>
+                            </Table>
+                        ) }
+                    </Paper>
                 ) }
-            </Paper>
-        ) }
-    </Container>
-}
+            </Stack>
+        </Container>
+    );
+};
 
-export default ManageStudent
+export default ManageStudent;

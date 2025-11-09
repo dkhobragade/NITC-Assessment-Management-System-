@@ -1,56 +1,95 @@
-import { useState } from 'react';
-import
-{
-    Card,
-    Title,
-    TextInput,
-    Textarea,
-    Select,
-    Button,
-    Group,
-    Box,
-    Text,
-    // DatePickerInput,
-} from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { Card, Title, TextInput, Textarea, Button, Group, Box, Text } from '@mantine/core';
+import { DatePickerInput } from "@mantine/dates";
 import { IconClipboardPlus } from '@tabler/icons-react';
+import { fetchWrapper } from '../../lib/api/fetchWrapper';
+import { toast } from 'react-toastify';
+import { postWrapper } from '../../lib/api/postWrapper';
 
 const CreateTask = () =>
 {
-    const [ course, setCourse ] = useState( '' );
     const [ title, setTitle ] = useState( '' );
     const [ description, setDescription ] = useState( '' );
     const [ dueDate, setDueDate ] = useState( null );
-    const [ success, setSuccess ] = useState( false );
+    const [ pdfFile, setPdfFile ] = useState( null ); // ✅ new state for PDF
+    const [ isLoading, setIsLoading ] = useState( false )
 
-    // Dummy data for courses (replace with API call)
-    const courseOptions = [
-        { value: 'cs101', label: 'CS101 - Data Structures' },
-        { value: 'cs102', label: 'CS102 - Operating Systems' },
-        { value: 'cs103', label: 'CS103 - Database Systems' },
-    ];
+    const [ assignedCourse, setAssignedCourse ] = useState( '' );
+    const today = new Date();
 
-    const handleSubmit = ( e ) =>
+    useEffect( () =>
+    {
+        getAssignedCourse();
+    }, [] );
+
+    const getAssignedCourse = () =>
+    {
+        fetchWrapper( 'faculty/assigned-courses' )
+            .then( ( resp ) =>
+            {
+                if ( resp.success )
+                {
+                    const courseName = resp.assignedCourses[ 0 ]?.name || '-';
+                    setAssignedCourse( courseName );
+
+                    if ( courseName === '-' )
+                    {
+                        toast.info( 'No course has been assigned to you' );
+                    }
+                }
+            } )
+            .catch( ( err ) =>
+            {
+                toast.error( err.message );
+            } );
+    };
+
+    const handleSubmit = async ( e ) =>
     {
         e.preventDefault();
-
-        if ( !course || !title || !description || !dueDate )
+        setIsLoading( true )
+        if ( !title || !description || !dueDate )
         {
-            alert( 'Please fill in all fields' );
+            toast.info( 'Please fill in all fields' );
             return;
         }
 
-        console.log( 'Task Created:', { course, title, description, dueDate } );
-        setSuccess( true );
+        if ( !pdfFile )
+        {
+            toast.info( 'Please upload a PDF file' );
+            return;
+        }
 
-        // Reset fields
-        setCourse( '' );
-        setTitle( '' );
-        setDescription( '' );
-        setDueDate( null );
+        const nativeDate = dueDate instanceof Date ? dueDate : new Date( dueDate );
 
-        // Hide success message after 3s
-        setTimeout( () => setSuccess( false ), 3000 );
+        const formData = new FormData();
+        formData.append( 'title', title );
+        formData.append( 'description', description );
+        formData.append( 'deadline', nativeDate.toISOString() );
+        formData.append( 'pdfFile', pdfFile );
+
+        try
+        {
+            const resp = await postWrapper( 'faculty/create-task', formData, true );
+
+            if ( resp.success )
+            {
+                toast.success( resp.message );
+                setTitle( '' );
+                setDescription( '' );
+                setDueDate( null );
+                setPdfFile( null );
+            }
+        } catch ( err )
+        {
+            toast.error( err.message );
+        } finally
+        {
+            setIsLoading( false )
+        }
     };
+
+    const isFormDisabled = assignedCourse === '-';
 
     return (
         <Box p="lg">
@@ -60,55 +99,61 @@ const CreateTask = () =>
 
             <Card shadow="sm" padding="xl" radius="md" withBorder maw={ 700 }>
                 <form onSubmit={ handleSubmit }>
-                    <Select
-                        label="Select Course"
-                        placeholder="Choose a course"
-                        data={ courseOptions }
-                        value={ course }
-                        onChange={ setCourse }
-                        required
-                        mb="md"
-                    />
+                    <Text fw={ 600 } mb="md">Assigned Course: { assignedCourse }</Text>
 
                     <TextInput
-                        label="Task Title"
+                        label="Title"
                         placeholder="Enter task title"
                         value={ title }
                         onChange={ ( e ) => setTitle( e.target.value ) }
                         required
                         mb="md"
+                        disabled={ isFormDisabled }
                     />
 
                     <Textarea
-                        label="Task Description"
+                        label="Description"
                         placeholder="Enter detailed task description"
                         minRows={ 4 }
                         value={ description }
                         onChange={ ( e ) => setDescription( e.target.value ) }
                         required
                         mb="md"
+                        disabled={ isFormDisabled }
                     />
-                    {/*
+
                     <DatePickerInput
                         label="Due Date"
                         placeholder="Pick a due date"
                         value={ dueDate }
                         onChange={ setDueDate }
+                        minDate={ today } // prevent backdates
                         required
                         mb="md"
-                    /> */}
+                        disabled={ isFormDisabled }
+                    />
+
+                    <Box mb="md">
+                        <Text fw={ 600 } size="sm" mb={ 4 }>Upload PDF</Text>
+                        <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={ ( e ) => setPdfFile( e.target.files[ 0 ] ) }
+                            disabled={ isFormDisabled }
+                        />
+                        { pdfFile && <Text size="sm" mt={ 2 }>Selected file: { pdfFile.name }</Text> }
+                    </Box>
 
                     <Group justify="flex-end" mt="lg">
-                        <Button type="submit" leftSection={ <IconClipboardPlus size={ 18 } /> }>
+                        <Button
+                            loading={ isLoading }
+                            type="submit"
+                            leftSection={ <IconClipboardPlus size={ 18 } /> }
+                            disabled={ isFormDisabled }
+                        >
                             Create Task
                         </Button>
                     </Group>
-
-                    { success && (
-                        <Text c="green" mt="md" fw={ 500 }>
-                            ✅ Task created successfully!
-                        </Text>
-                    ) }
                 </form>
             </Card>
         </Box>

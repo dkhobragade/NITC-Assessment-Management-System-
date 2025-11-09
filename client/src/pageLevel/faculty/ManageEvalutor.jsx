@@ -62,6 +62,26 @@ const ManageEvaluator = () =>
         } )
     };
 
+    const handleExportExcel = async () =>
+    {
+        try
+        {
+            const blob = await fetchWrapper( "faculty/export-evaluator", {}, true );
+            const url = window.URL.createObjectURL( blob );
+            const a = document.createElement( "a" );
+            a.href = url;
+            a.download = "evaluator.xlsx";
+            document.body.appendChild( a );
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL( url );
+        } catch ( err )
+        {
+            console.error( err );
+            toast.error( "Failed to download Excel file" );
+        }
+    };
+
     const rows = evaluatorsList.map( ( evaluator ) => (
         <Table.Tr key={ evaluator._id }>
             <Table.Td>{ evaluator.name }</Table.Td>
@@ -88,9 +108,14 @@ const ManageEvaluator = () =>
 
     return (
         <Container size="xl" py="lg">
-            <Title order={ 2 } mb="lg" ta="left">
-                Manage Evaluators
-            </Title>
+            <Group position="apart">
+                <Title order={ 2 } mb="lg" ta="left">
+                    Manage Evaluators
+                </Title>
+                <Button color="green" onClick={ handleExportExcel }>
+                    Export to Excel
+                </Button>
+            </Group>
 
             { loading ? (
                 <Group justify="center" mt="xl">

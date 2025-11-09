@@ -7,11 +7,12 @@ const FacultyOverview = () =>
 {
 
     const [ assignedCourse, setAssignedCourse ] = useState( '' )
-    const taskCreated = 8;
+    const [ taskCreated, setTaskCreated ] = useState( 0 )
 
     useEffect( () =>
     {
         getAssignedCourse()
+        getCreatedTask()
     }, [] )
 
     const getAssignedCourse = () =>
@@ -20,7 +21,21 @@ const FacultyOverview = () =>
         {
             if ( resp.success )
             {
-                setAssignedCourse( resp.assignedCourses[ 0 ].name )
+                setAssignedCourse( resp.assignedCourses[ 0 ]?.name || "-" )
+            }
+        } ).catch( ( err ) =>
+        {
+            toast.error( err.message )
+        } )
+    }
+
+    const getCreatedTask = () =>
+    {
+        fetchWrapper( 'faculty/task' ).then( ( resp ) =>
+        {
+            if ( resp.success )
+            {
+                setTaskCreated( resp.totalTasks || 0 )
             }
         } ).catch( ( err ) =>
         {
