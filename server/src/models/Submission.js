@@ -1,3 +1,5 @@
+import mongoose from 'mongoose'
+
 const submissionSchema = new mongoose.Schema({
   student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   task: { type: mongoose.Schema.Types.ObjectId, ref: "Task", required: true },

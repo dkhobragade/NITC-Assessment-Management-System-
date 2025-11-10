@@ -1,10 +1,13 @@
-import {atom} from 'jotai'
+import { atom } from 'jotai';
 
-export const userAtom=atom({
-    name:'',
-    email:'',
-    collegeId:'',
-    role:''
-})
+const storedUser = JSON.parse(localStorage.getItem("user")) || {
+  name: "",
+  email: "",
+  collegeId: "",
+  role: ""
+};
 
-export const selectedRole = atom("Admin")
+export const userAtom = atom(storedUser);
+
+// set selectedRole from stored user or default to Admin
+export const selectedRole = atom(storedUser.role || "Admin");

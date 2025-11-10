@@ -1,22 +1,29 @@
-import { useEffect, useState } from 'react';
-import { IconLogout } from '@tabler/icons-react';
-import { Divider } from '@mantine/core';
-import { NavLink, useNavigate } from 'react-router-dom';
-import classes from './NavbarSimple.module.css';
-import { useAtom, useSetAtom } from 'jotai';
-import { selectedRole, userAtom } from '../lib/store/userAtom';
-import { adminNavbar, evalutorNavbar, facultyNavbar, studentNavbar } from '../lib/constant';
-import { postWrapper } from '../lib/api/postWrapper';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { IconLogout, IconUser } from "@tabler/icons-react";
+import { Divider, Text, Group, Badge } from "@mantine/core";
+import { NavLink, useNavigate } from "react-router-dom";
+import classes from "./NavbarSimple.module.css";
+import { useAtom, useSetAtom } from "jotai";
+import { selectedRole, userAtom } from "../lib/store/userAtom";
+import
+{
+    adminNavbar,
+    evalutorNavbar,
+    facultyNavbar,
+    studentNavbar,
+} from "../lib/constant";
+import { postWrapper } from "../lib/api/postWrapper";
+import { toast } from "react-toastify";
 
 export function Navbar ()
 {
-    const [ active, setActive ] = useState( 'Overview' );
+    const [ active, setActive ] = useState( "Overview" );
     const [ navbarData, setNavbarData ] = useState( adminNavbar );
     const [ selectedProfile ] = useAtom( selectedRole );
-    const setUserAtom = useSetAtom( userAtom )
-    const setSelectedRole = useSetAtom( selectedRole )
-    const navigate = useNavigate()
+    const [ user ] = useAtom( userAtom );
+    const setUserAtom = useSetAtom( userAtom );
+    const setSelectedRole = useSetAtom( selectedRole );
+    const navigate = useNavigate();
 
     useEffect( () =>
     {
@@ -25,16 +32,16 @@ export function Navbar ()
 
     const getNavbarData = () =>
     {
-        if ( selectedProfile === 'Admin' )
+        if ( selectedProfile === "Admin" )
         {
             setNavbarData( adminNavbar );
-        } else if ( selectedProfile === 'Faculty' )
+        } else if ( selectedProfile === "Faculty" )
         {
             setNavbarData( facultyNavbar );
-        } else if ( selectedProfile === 'Evalutor' )
+        } else if ( selectedProfile === "Evaluator" )
         {
             setNavbarData( evalutorNavbar );
-        } else
+        } else if ( selectedProfile === "Student" )
         {
             setNavbarData( studentNavbar );
         }
@@ -42,25 +49,70 @@ export function Navbar ()
 
     const onClickLogout = ( e ) =>
     {
-        e.preventDefault()
+        e.preventDefault();
 
-        postWrapper( 'auth/logout' ).then( ( resp ) =>
+        postWrapper( "auth/logout" )
+            .then( ( resp ) =>
+            {
+                toast.success( resp.message );
+                navigate( "/" );
+                setUserAtom( null );
+                setSelectedRole( "" );
+                localStorage.removeItem( "user" );
+            } )
+            .catch( ( error ) =>
+            {
+                toast.error( error.message );
+            } )
+            .finally( () =>
+            {
+                setUserAtom( { name: "", email: "", role: "", collegeId: "" } );
+            } );
+    };
+
+    // ✅ Choose role color dynamically
+    const getRoleColor = ( role ) =>
+    {
+        switch ( role )
         {
-            toast.success( resp.message )
-            navigate( '/' )
-            setUserAtom( null );
-            setSelectedRole( "Admin" );
-        } ).catch( ( error ) =>
-        {
-            toast.success( error.message )
-        } ).finally( () =>
-        {
-            setUserAtom( { name: '', email: '', role: '', collegeId: '' } )
-        } )
-    }
+            case "Admin":
+                return "red";
+            case "Faculty":
+                return "blue";
+            case "Evaluator":
+                return "orange";
+            case "Student":
+                return "green";
+            default:
+                return "gray";
+        }
+    };
 
     return (
         <nav className={ classes.navbar }>
+            {/* ✅ User Info Section */ }
+            <div className={ classes.userInfo }>
+                <Group>
+                    <IconUser size={ 20 } />
+                    <div>
+                        <Text fw={ 600 } size="sm">
+                            { user?.name || "Guest User" }
+                        </Text>
+                        <Badge
+                            color={ getRoleColor( selectedProfile ) }
+                            size="sm"
+                            variant="filled"
+                            radius="sm"
+                        >
+                            { selectedProfile }
+                        </Badge>
+                    </div>
+                </Group>
+            </div>
+
+            <Divider my="sm" />
+
+            {/* ✅ Main Navbar Links */ }
             <div className={ classes.navbarMain }>
                 { navbarData.map( ( item ) => (
                     <NavLink
@@ -68,7 +120,7 @@ export function Navbar ()
                         to={ item.link }
                         onClick={ () => setActive( item.label ) }
                         className={ ( { isActive } ) =>
-                            `${ classes.link } ${ isActive || active === item.label ? classes.activeLink : ''
+                            `${ classes.link } ${ isActive || active === item.label ? classes.activeLink : ""
                             }`
                         }
                         data-active={ active === item.label ? true : undefined }
@@ -77,13 +129,12 @@ export function Navbar ()
                     </NavLink>
                 ) ) }
             </div>
+
             <Divider my="md" />
+
+            {/* ✅ Footer / Logout */ }
             <div className={ classes.footer }>
-                <a
-                    href="#"
-                    className={ classes.link }
-                    onClick={ onClickLogout }
-                >
+                <a href="#" className={ classes.link } onClick={ onClickLogout }>
                     <IconLogout className={ classes.linkIcon } stroke={ 1.5 } />
                     <span>Logout</span>
                 </a>

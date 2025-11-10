@@ -1,5 +1,5 @@
 import express from 'express'
-import { approveEvalutor, approveStudent, approveUserByFaculty, createTask, exportEvaluatorExcel, exportStudentsExcel, getAllEvalutor, getAllStudent, getAssignedCoursesForFaculty,  getTasks, studentUploadPDF, uploadExcelAndMap } from '../controllers/facultyControllers.js'
+import { approveEvalutor, approveStudent, approveUserByFaculty, createTask, exportEvaluatorExcel, exportStudentsExcel, generateFacultyReport, getAllEvalutor, getAllStudent, getAssignedCoursesForFaculty,  getTasks,  saveSingleMapping, studentUploadPDF, uploadExcelAndMap } from '../controllers/facultyControllers.js'
 import { protectRoute } from '../middlewares/authMiddleware.js'
 import parser from '../middlewares/upload.js';
 import multer from 'multer';
@@ -28,5 +28,9 @@ router.post("/upload-excel", protectRoute, upload.fields([
   { name: "evaluators", maxCount: 1 },
   { name: "students", maxCount: 1 }
 ]), uploadExcelAndMap);
+
+router.post("/save-mappings",protectRoute,saveSingleMapping)
+
+router.get("/generate-report", protectRoute, generateFacultyReport);
 
 export default router

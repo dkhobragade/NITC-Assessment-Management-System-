@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import LandingPage from './pageLevel/LandingPage'
 import SignupPage from './pageLevel/SignupPage'
 import LoginPage from './pageLevel/LoginPage'
@@ -22,9 +22,23 @@ import Result from './pageLevel/student/Result'
 import AssignCourse from './pageLevel/admin/AssignCourse'
 import { ToastContainer } from 'react-toastify'
 import './App.css'
+import { useAtom } from 'jotai'
+import { userAtom } from './lib/store/userAtom'
+import { useEffect } from 'react'
 
 function App ()
 {
+
+  const [ user ] = useAtom( userAtom );
+  const navigate = useNavigate();
+
+  useEffect( () =>
+  {
+    if ( user?.role )
+    {
+      navigate( `/${ user.role.toLowerCase() }-overview` );
+    }
+  }, [ user ] );
 
   return <>
 

@@ -1,39 +1,96 @@
-import { Card, Grid, Text, Title } from '@mantine/core';
+import { Card, Grid, Text, Title, Stack, Collapse } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { fetchWrapper } from '../../lib/api/fetchWrapper';
+import { toast } from 'react-toastify';
 
 const EvaluatorOverview = () =>
 {
-    const task_Assigned = 12;
-    const totalStudent = 8;
+    const [ totalStudent, setTotalStudent ] = useState( 0 );
+    const [ taskCreated, setTaskCreated ] = useState( 0 );
+    const [ students, setStudents ] = useState( [] );
+    const [ showStudents, setShowStudents ] = useState( false );
 
-    return <div style={ { padding: '20px' } }>
-        <Title order={ 2 } mb="lg">Evaluator Overview</Title>
+    useEffect( () =>
+    {
+        getCreatedTask();
+        getAssignedStudents();
+    }, [] );
 
-        <Grid gutter="xl">
-            {/* Faculty Count Box */ }
-            <Grid.Col span={ { base: 12, sm: 6 } }>
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                    <Text size="lg" fw={ 500 } mb="xs">
-                        Assigned Task
-                    </Text>
-                    <Title order={ 1 } c="blue">
-                        { task_Assigned }
-                    </Title>
-                </Card>
-            </Grid.Col>
+    const getCreatedTask = () =>
+    {
+        fetchWrapper( 'evaluator/all-tasks' )
+            .then( ( resp ) =>
+            {
+                if ( resp.success ) setTaskCreated( resp.totalTasks || 0 );
+            } )
+            .catch( ( err ) => toast.error( err.message ) );
+    };
 
-            {/* Course Count Box */ }
-            <Grid.Col span={ { base: 12, sm: 6 } }>
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                    <Text size="lg" fw={ 500 } mb="xs">
-                        Number of Assigned Student
-                    </Text>
-                    <Title order={ 1 } c="green">
-                        { totalStudent }
-                    </Title>
-                </Card>
-            </Grid.Col>
-        </Grid>
-    </div>
-}
+    const getAssignedStudents = () =>
+    {
+        fetchWrapper( 'evaluator/assigned-students' ) // make sure this endpoint returns the JSON you provided
+            .then( ( resp ) =>
+            {
+                if ( resp.success )
+                {
+                    // Here we get count from evaluator.assignedStudentsCount
+                    setTotalStudent( resp.evaluator?.assignedStudentsCount || 0 );
 
-export default EvaluatorOverview
+                    // And array of assigned students
+                    setStudents( resp.assignedStudents || [] );
+                }
+            } )
+            .catch( ( err ) => toast.error( err.message ) );
+    };
+
+    return (
+        <div style={ { padding: '20px' } }>
+            <Title order={ 2 } mb="lg">Evaluator Overview</Title>
+
+            <Grid gutter="xl">
+                {/* Task Count */ }
+                <Grid.Col span={ { base: 12, sm: 6 } }>
+                    <Card shadow="sm" padding="lg" radius="md" withBorder>
+                        <Text size="lg" fw={ 500 } mb="xs">Task Count</Text>
+                        <Title order={ 1 } c="blue">{ taskCreated }</Title>
+                    </Card>
+                </Grid.Col>
+
+                {/* Assigned Students */ }
+                <Grid.Col span={ { base: 12, sm: 6 } }>
+                    <Card
+                        shadow="sm"
+                        padding="lg"
+                        radius="md"
+                        withBorder
+                        style={ { cursor: 'pointer' } }
+                        onClick={ () => setShowStudents( ( prev ) => !prev ) }
+                    >
+                        <Text size="lg" fw={ 500 } mb="xs">Number of Assigned Students</Text>
+                        <Title order={ 1 } c="green">{ totalStudent }</Title>
+
+                        <Collapse in={ showStudents }>
+                            <Stack spacing="sm" mt="md">
+                                { students.length === 0 ? (
+                                    <Text c="dimmed">No students assigned.</Text>
+                                ) : (
+                                    students.map( ( s ) => (
+                                        <Card key={ s._id } shadow="xs" padding="sm" radius="sm" withBorder>
+                                            <Text fw={ 500 }>{ s.name }</Text>
+                                            <Text size="sm" c="dimmed">{ s.email }</Text>
+                                            <Text size="sm" c="dimmed">
+                                                Courses: { s.enrolledCourses.map( ec => ec.enrollmentCode ).join( ', ' ) }
+                                            </Text>
+                                        </Card>
+                                    ) )
+                                ) }
+                            </Stack>
+                        </Collapse>
+                    </Card>
+                </Grid.Col>
+            </Grid>
+        </div>
+    );
+};
+
+export default EvaluatorOverview;
