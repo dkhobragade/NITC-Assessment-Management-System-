@@ -20,11 +20,22 @@ const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
-    origin: "https://nitc-assessment-management-system-j7d3oqep8.vercel.app" || "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        origin.includes("localhost") ||
+        origin.endsWith(".vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use(cookieParser());
