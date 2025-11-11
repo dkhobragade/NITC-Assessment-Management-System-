@@ -9,7 +9,6 @@ It provides a centralized system for faculty members to create evaluation tasks,
 ## 🎯 Objectives
 - Provide a **generalized platform** for conducting any type of academic evaluation.
 - Enable **secure faculty authentication** via NITC email.
-- Simplify **management of candidates and evaluators** using bulk uploads (CSV/Excel).
 - Automate **candidate–evaluator mapping** (random/manual).
 - Support **automatic seating arrangements** for candidates.
 - Provide evaluators with a dashboard to **view assigned students and record scores**.
@@ -23,7 +22,6 @@ It provides a centralized system for faculty members to create evaluation tasks,
 
 - **Evaluation Task Management**
   - Faculty can create, view, and manage tasks.
-  - Candidate and evaluator data import from CSV/Excel.
 
 - **Candidate–Evaluator Mapping**
   - Random mapping ensures fair distribution of evaluations.
@@ -64,7 +62,7 @@ It provides a centralized system for faculty members to create evaluation tasks,
 - **Cookie management:** cookie-parser
 - **PDF:** multer
 - **Excel:** xlsx
-- **Icon:** react-icons
+- **Icon:** tabler/icons-react
 
 
 ---

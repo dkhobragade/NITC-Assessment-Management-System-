@@ -28,15 +28,13 @@ const EvaluatorOverview = () =>
 
     const getAssignedStudents = () =>
     {
-        fetchWrapper( 'evaluator/assigned-students' ) // make sure this endpoint returns the JSON you provided
+        fetchWrapper( 'evaluator/assigned-students' )
             .then( ( resp ) =>
             {
                 if ( resp.success )
                 {
-                    // Here we get count from evaluator.assignedStudentsCount
                     setTotalStudent( resp.evaluator?.assignedStudentsCount || 0 );
 
-                    // And array of assigned students
                     setStudents( resp.assignedStudents || [] );
                 }
             } )
@@ -48,7 +46,6 @@ const EvaluatorOverview = () =>
             <Title order={ 2 } mb="lg">Evaluator Overview</Title>
 
             <Grid gutter="xl">
-                {/* Task Count */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
                         <Text size="lg" fw={ 500 } mb="xs">Task Count</Text>
@@ -56,7 +53,6 @@ const EvaluatorOverview = () =>
                     </Card>
                 </Grid.Col>
 
-                {/* Assigned Students */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card
                         shadow="sm"

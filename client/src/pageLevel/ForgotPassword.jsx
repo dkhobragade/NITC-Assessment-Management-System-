@@ -1,16 +1,5 @@
 import { IconArrowLeft } from '@tabler/icons-react';
-import
-{
-    Anchor,
-    Box,
-    Button,
-    Container,
-    Group,
-    Paper,
-    Text,
-    TextInput,
-    Title,
-} from '@mantine/core';
+import { Anchor, Button, Container, Group, Paper, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';

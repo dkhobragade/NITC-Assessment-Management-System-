@@ -1,18 +1,5 @@
 import { useEffect, useState } from 'react';
-import
-{
-    Card,
-    Grid,
-    Text,
-    Title,
-    TextInput,
-    Button,
-    Group,
-    Notification,
-    Table,
-    ScrollArea,
-    Loader,
-} from '@mantine/core';
+import { Card, Grid, Text, Title, TextInput, Button, Group, Notification, Table, ScrollArea, Loader } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { postWrapper } from '../../lib/api/postWrapper';
 import { fetchWrapper } from '../../lib/api/fetchWrapper';
@@ -109,7 +96,6 @@ const StudentOverview = () =>
                 Student Overview
             </Title>
 
-            {/* Stats Section */ }
             <Grid gutter="xl">
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -134,14 +120,12 @@ const StudentOverview = () =>
                 </Grid.Col>
             </Grid>
 
-            {/* Enrollment Section with Course Table */ }
             <Card shadow="sm" padding="xl" radius="md" withBorder mt="xl">
                 <Title order={ 3 } mb="md">
                     Enroll in a Course
                 </Title>
 
                 <Grid gutter="lg">
-                    {/* Enrollment Input */ }
                     <Grid.Col span={ { base: 12, md: 6 } }>
                         <Group align="flex-end" gap="md">
                             <TextInput

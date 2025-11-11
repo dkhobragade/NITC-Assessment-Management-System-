@@ -53,7 +53,6 @@ const SignupPage = () =>
                 {
                     toast.success( resp.message );
 
-                    // Save user info in state
                     setUserAtom( {
                         name: resp.name,
                         email: resp.email,
@@ -62,14 +61,12 @@ const SignupPage = () =>
                         isApproved: resp.isApproved,
                     } );
 
-                    // ✅ If user is Admin, go directly to admin dashboard
                     if ( selectedProfile === "Admin" )
                     {
                         navigate( "/admin-overview" );
                         return;
                     }
 
-                    // For non-admins, check approval
                     if ( !resp.isApproved )
                     {
                         if ( selectedProfile === "Faculty" )
@@ -80,12 +77,10 @@ const SignupPage = () =>
                             toast.info( "Your account is pending approval from the Faculty." );
                         }
 
-                        // Redirect to login so they can sign in later when approved
                         navigate( "/login" );
                         return;
                     }
 
-                    // Only approved non-admin users redirected to dashboards
                     if ( selectedProfile === "Faculty" )
                     {
                         navigate( "/faculty-overview" );

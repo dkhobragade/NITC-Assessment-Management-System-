@@ -1,4 +1,3 @@
-// 📂 src/lib/api/getFileWrapper.js
 import { BASEURL } from "../constant.js";
 
 export async function getFileWrapper ( path, filename )

@@ -9,12 +9,13 @@ import { postWrapper } from '../lib/api/postWrapper';
 const LoginPage = () =>
 {
     const [ formData, setFormData ] = useState( { email: '', password: '' } );
-
-    const navigate = useNavigate();
-    const [ selectedProfile ] = useAtom( selectedRole );
     const [ isLoading, setIsLoading ] = useState( false );
+
+    const [ selectedProfile ] = useAtom( selectedRole );
     const setUserAtom = useSetAtom( userAtom );
     const setSelectedRole = useSetAtom( selectedRole );
+
+    const navigate = useNavigate();
 
     const onClickSubmit = () =>
     {
@@ -86,7 +87,6 @@ const LoginPage = () =>
                     mt="md"
                     radius="md"
                 />
-                {/* Forgot password link aligned to right */ }
                 <Group position="right" mt="sm">
                     <Anchor component="button" size="sm" onClick={ () => navigate( "/forgot-password" ) }>
                         Forgot password?

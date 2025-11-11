@@ -57,7 +57,6 @@ const ManageFaculty = () =>
 
     };
 
-    // 🔹 Table Rows
     const rows = facultyList.map( ( faculty ) => (
         <Table.Tr key={ faculty._id }>
             <Table.Td>{ faculty.name }</Table.Td>

@@ -1,22 +1,6 @@
 import { useState, useEffect } from "react";
-import
-{
-    Card,
-    Title,
-    Text,
-    Grid,
-    Button,
-    Group,
-    FileButton,
-    Notification,
-    Loader,
-} from "@mantine/core";
-import
-{
-    IconUpload,
-    IconCheck,
-    IconFileText,
-} from "@tabler/icons-react";
+import { Card, Title, Text, Grid, Button, Group, FileButton, Notification, Loader } from "@mantine/core";
+import { IconUpload, IconCheck, IconFileText } from "@tabler/icons-react";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
 import { postWrapper } from "../../lib/api/postWrapper";
 import { toast } from "react-toastify";
@@ -87,7 +71,7 @@ const Task = () =>
             if ( uploadResp.success )
             {
                 toast.success( "File uploaded successfully!" );
-                await fetchStudentTasks(); // Refresh list after upload
+                await fetchStudentTasks();
             }
         } catch ( err )
         {

@@ -10,7 +10,7 @@ const AdminOverview = () =>
     const [ courses, setCourses ] = useState( [] );
     const [ faculty, setFaculty ] = useState( [] );
     const [ showCourses, setShowCourses ] = useState( false );
-    const [ showFaculty, setShowFaculty ] = useState( false ); // toggle for faculty
+    const [ showFaculty, setShowFaculty ] = useState( false );
 
     useEffect( () =>
     {
@@ -20,7 +20,7 @@ const AdminOverview = () =>
 
     const getFacultyCount = () =>
     {
-        fetchWrapper( 'admin/faculty-count' ) // changed to fetch list
+        fetchWrapper( 'admin/faculty-count' )
             .then( ( resp ) =>
             {
                 if ( resp.success )
@@ -51,7 +51,6 @@ const AdminOverview = () =>
             <Title order={ 2 } mb="lg">Admin Overview</Title>
 
             <Grid gutter="xl">
-                {/* Faculty Count Box */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card
                         shadow="sm"
@@ -81,7 +80,6 @@ const AdminOverview = () =>
                     </Card>
                 </Grid.Col>
 
-                {/* Courses Count Box */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card
                         shadow="sm"

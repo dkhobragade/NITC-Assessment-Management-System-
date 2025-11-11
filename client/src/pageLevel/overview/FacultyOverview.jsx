@@ -9,7 +9,7 @@ const FacultyOverview = () =>
     const [ assignedCourse, setAssignedCourse ] = useState( '' );
     const [ taskCreated, setTaskCreated ] = useState( 0 );
     const [ tasks, setTasks ] = useState( [] );
-    const [ showTasks, setShowTasks ] = useState( false ); // toggle state
+    const [ showTasks, setShowTasks ] = useState( false );
 
     useEffect( () =>
     {
@@ -57,7 +57,6 @@ const FacultyOverview = () =>
             </Title>
 
             <Grid gutter="xl">
-                {/* Assigned Course */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
                         <Text size="lg" fw={ 500 } mb="xs">
@@ -69,7 +68,6 @@ const FacultyOverview = () =>
                     </Card>
                 </Grid.Col>
 
-                {/* Total Task Box */ }
                 <Grid.Col span={ { base: 12, sm: 6 } }>
                     <Card
                         shadow="sm"
@@ -86,7 +84,6 @@ const FacultyOverview = () =>
                             { taskCreated }
                         </Title>
 
-                        {/* Collapsible tasks */ }
                         <Collapse in={ showTasks }>
                             <Stack spacing="sm" mt="md">
                                 { tasks.length === 0 ? (

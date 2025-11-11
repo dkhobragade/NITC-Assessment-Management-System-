@@ -123,7 +123,6 @@ const FacultyDashboard = () =>
 
         if ( !evaluatorObj || !studentObj ) return;
 
-        // Add mapping
         setManualMappings( [ ...manualMappings, {
             evaluatorId: evaluatorObj.value,
             studentId: studentObj.value,
@@ -134,7 +133,6 @@ const FacultyDashboard = () =>
         // Remove student from dropdown to prevent double mapping
         setStudentList( studentList.filter( ( s ) => s.value !== selectedStudent ) );
 
-        // Reset selects
         setSelectedEvaluator( "" );
         setSelectedStudent( "" );
     };
@@ -162,7 +160,6 @@ const FacultyDashboard = () =>
             }
         }
 
-        // After all mappings saved
         setManualMappings( [] );
         setStudentList( students.map( ( s ) => ( { value: s._id, label: s.name } ) ) );
     };
@@ -222,15 +219,12 @@ const FacultyDashboard = () =>
 
                                 while ( remainingStudents.length > 0 )
                                 {
-                                    // Pick a random student
                                     const studentIdx = Math.floor( Math.random() * remainingStudents.length );
                                     const student = remainingStudents.splice( studentIdx, 1 )[ 0 ];
 
-                                    // Pick a random evaluator
                                     const evaluatorIdx = Math.floor( Math.random() * evaluatorsList.length );
                                     const evaluator = evaluatorsList[ evaluatorIdx ];
 
-                                    // Add mapping
                                     newMappings.push( {
                                         evaluatorId: evaluator.value,
                                         studentId: student.value,
@@ -239,10 +233,8 @@ const FacultyDashboard = () =>
                                     } );
                                 }
 
-                                // Add to manualMappings
                                 setManualMappings( [ ...manualMappings, ...newMappings ] );
 
-                                // Remove mapped students from dropdown
                                 const mappedStudentIds = newMappings.map( ( m ) => m.studentId );
                                 setStudentList( studentList.filter( ( s ) => !mappedStudentIds.includes( s.value ) ) );
 

@@ -5,13 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import classes from "./NavbarSimple.module.css";
 import { useAtom, useSetAtom } from "jotai";
 import { selectedRole, userAtom } from "../lib/store/userAtom";
-import
-{
-    adminNavbar,
-    evalutorNavbar,
-    facultyNavbar,
-    studentNavbar,
-} from "../lib/constant";
+import { adminNavbar, evalutorNavbar, facultyNavbar, studentNavbar } from "../lib/constant";
 import { postWrapper } from "../lib/api/postWrapper";
 import { toast } from "react-toastify";
 
@@ -70,7 +64,6 @@ export function Navbar ()
             } );
     };
 
-    // ✅ Choose role color dynamically
     const getRoleColor = ( role ) =>
     {
         switch ( role )
@@ -90,7 +83,6 @@ export function Navbar ()
 
     return (
         <nav className={ classes.navbar }>
-            {/* ✅ User Info Section */ }
             <div className={ classes.userInfo }>
                 <Group>
                     <IconUser size={ 20 } />
@@ -112,7 +104,6 @@ export function Navbar ()
 
             <Divider my="sm" />
 
-            {/* ✅ Main Navbar Links */ }
             <div className={ classes.navbarMain }>
                 { navbarData.map( ( item ) => (
                     <NavLink
@@ -132,7 +123,6 @@ export function Navbar ()
 
             <Divider my="md" />
 
-            {/* ✅ Footer / Logout */ }
             <div className={ classes.footer }>
                 <a href="#" className={ classes.link } onClick={ onClickLogout }>
                     <IconLogout className={ classes.linkIcon } stroke={ 1.5 } />
