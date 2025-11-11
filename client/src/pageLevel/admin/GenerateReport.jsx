@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Table, Title, Container, Button, Badge, Loader, Group, Text, Paper } from "@mantine/core";
 import { toast } from "react-toastify";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
-import { putWrapper } from "../../lib/api/putWrapper";
 import { getFileWrapper } from "../../lib/api/getFileWrapper";
 
 
@@ -57,7 +56,6 @@ const GenerateReport = () =>
         }
     };
 
-    // 🔹 Table Rows
     const rows = facultyList.map( ( faculty ) => (
         <Table.Tr key={ faculty._id }>
             <Table.Td>{ faculty.name }</Table.Td>

@@ -6,7 +6,6 @@ import PDFDocument from "pdfkit";
 import Submission from "../models/Submission.js";
 import Enrollment from "../models/Enrollment.js";
 
-// Faculty approving Evaluator/Student
 export const approveUserByFaculty = async ( req, res ) =>
 {
   const { userId } = req.body;
@@ -96,10 +95,9 @@ export const getTasks = async ( req, res ) =>
   {
     const facultyId = req.user._id;
 
-    // Find all tasks created by this faculty
     const tasks = await TaskModel.find( { createdBy: facultyId } )
-      .populate( "course", "name code" ) // populate course name & code
-      .sort( { createdAt: -1 } ) // latest first
+      .populate( "course", "name code" )
+      .sort( { createdAt: -1 } )
       .lean();
 
     const taskCount = tasks.length;
@@ -123,9 +121,8 @@ export const getAssignedCoursesForFaculty = async ( req, res ) =>
 {
   try
   {
-    const facultyId = req.user.id; // from JWT middleware
+    const facultyId = req.user.id;
 
-    // Verify user is faculty
     const faculty = await UserModel.findById( facultyId )
       .populate( "assignedCourses", "name code description credits" )
       .lean();
@@ -208,7 +205,7 @@ export const getAllEvalutor = async ( req, res ) =>
   {
     const evalutorList = await UserModel.find( { role: "Evaluator" } )
       .select( "-password" )
-      .sort( { createdAt: -1 } ); // newest first
+      .sort( { createdAt: -1 } );
 
     res.status( 200 ).json( {
       success: true,
@@ -231,7 +228,7 @@ export const getAllStudent = async ( req, res ) =>
   {
     const studentList = await UserModel.find( { role: "Student" } )
       .select( "-password" )
-      .sort( { createdAt: -1 } ); // newest first
+      .sort( { createdAt: -1 } );
 
     res.status( 200 ).json( {
       success: true,
@@ -249,119 +246,123 @@ export const getAllStudent = async ( req, res ) =>
 };
 
 
-export const exportStudentsExcel = async (req, res) => {
-  try {
-    // Fetch students from DB
-    const students = await UserModel.find({ role: "Student" }).lean();
+export const exportStudentsExcel = async ( req, res ) =>
+{
+  try
+  {
+    const students = await UserModel.find( { role: "Student" } ).lean();
 
-    if (!students || students.length === 0) {
-      return res.status(404).json({ success: false, message: "No students found" });
+    if ( !students || students.length === 0 )
+    {
+      return res.status( 404 ).json( { success: false, message: "No students found" } );
     }
 
-    // Map data for Excel
-    const excelData = students.map((stu) => ({
+    const excelData = students.map( ( stu ) => ( {
       Name: stu.name,
       Email: stu.email,
       CollegeID: stu.collegeId,
       Role: stu.role,
       IsApproved: stu.isApproved,
       CreatedAt: stu.createdAt.toISOString(),
-    }));
+    } ) );
 
-    // Create a new workbook and worksheet
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(excelData);
+    const ws = XLSX.utils.json_to_sheet( excelData );
 
-    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.utils.book_append_sheet( wb, ws, "Students" );
 
-    // Write Excel to buffer
-    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+    const buf = XLSX.write( wb, { type: "buffer", bookType: "xlsx" } );
 
-    // Set headers and send file
-    res.setHeader("Content-Disposition", "attachment; filename=students.xlsx");
+    res.setHeader( "Content-Disposition", "attachment; filename=students.xlsx" );
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.send(buf);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    res.send( buf );
+  } catch ( err )
+  {
+    console.error( err );
+    res.status( 500 ).json( { success: false, message: err.message } );
   }
 };
 
-export const exportEvaluatorExcel = async (req, res) => {
-  try {
-    // Fetch students from DB
-    const evalutor = await UserModel.find({ role: "Evaluator" }).lean();
+export const exportEvaluatorExcel = async ( req, res ) =>
+{
+  try
+  {
+    const evalutor = await UserModel.find( { role: "Evaluator" } ).lean();
 
-    if (!evalutor || evalutor.length === 0) {
-      return res.status(404).json({ success: false, message: "No Evaluator found" });
+    if ( !evalutor || evalutor.length === 0 )
+    {
+      return res.status( 404 ).json( { success: false, message: "No Evaluator found" } );
     }
 
-    // Map data for Excel
-    const excelData = evalutor.map((eva) => ({
+    const excelData = evalutor.map( ( eva ) => ( {
       Name: eva.name,
       Email: eva.email,
       CollegeID: eva.collegeId,
       Role: eva.role,
       IsApproved: eva.isApproved,
       CreatedAt: eva.createdAt.toISOString(),
-    }));
+    } ) );
 
-    // Create a new workbook and worksheet
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(excelData);
+    const ws = XLSX.utils.json_to_sheet( excelData );
 
-    XLSX.utils.book_append_sheet(wb, ws, "evalutor");
+    XLSX.utils.book_append_sheet( wb, ws, "evalutor" );
 
-    // Write Excel to buffer
-    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+    const buf = XLSX.write( wb, { type: "buffer", bookType: "xlsx" } );
 
-    // Set headers and send file
-    res.setHeader("Content-Disposition", "attachment; filename=evalutor.xlsx");
+    res.setHeader( "Content-Disposition", "attachment; filename=evalutor.xlsx" );
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.send(buf);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    res.send( buf );
+  } catch ( err )
+  {
+    console.error( err );
+    res.status( 500 ).json( { success: false, message: err.message } );
   }
 };
 
 
-const parseExcel = (buffer) => {
-  const workbook = XLSX.read(buffer, { type: "buffer" });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  return XLSX.utils.sheet_to_json(sheet);
+const parseExcel = ( buffer ) =>
+{
+  const workbook = XLSX.read( buffer, { type: "buffer" } );
+  const sheetName = workbook.SheetNames[ 0 ];
+  const sheet = workbook.Sheets[ sheetName ];
+  return XLSX.utils.sheet_to_json( sheet );
 };
 
 
-export const uploadExcelAndMap = async (req, res) => {
-   if (!req.user) {
-    return res.status(401).json({ success: false, message: "User not authenticated" });
+export const uploadExcelAndMap = async ( req, res ) =>
+{
+  if ( !req.user )
+  {
+    return res.status( 401 ).json( { success: false, message: "User not authenticated" } );
   }
 
-  if (req.user.role !== "Faculty") {
-    return res.status(403).json({ success: false, message: "Only faculty can upload Excel" });
+  if ( req.user.role !== "Faculty" )
+  {
+    return res.status( 403 ).json( { success: false, message: "Only faculty can upload Excel" } );
   }
 
-  try {
-    const evalFile = req.files["evaluators"]?.[0];
-    const stuFile = req.files["students"]?.[0];
+  try
+  {
+    const evalFile = req.files[ "evaluators" ]?.[ 0 ];
+    const stuFile = req.files[ "students" ]?.[ 0 ];
 
-    if (!evalFile || !stuFile) {
-      return res.status(400).json({ success: false, message: "Both files are required" });
+    if ( !evalFile || !stuFile )
+    {
+      return res.status( 400 ).json( { success: false, message: "Both files are required" } );
     }
 
-    const evaluators = parseExcel(evalFile.buffer);
-    const students = parseExcel(stuFile.buffer);
+    const evaluators = parseExcel( evalFile.buffer );
+    const students = parseExcel( stuFile.buffer );
 
-    // Save Evaluators & Students
-    const savedEvaluators = await Promise.all(evaluators.map(async (e) => {
+    const savedEvaluators = await Promise.all( evaluators.map( async ( e ) =>
+    {
       return await UserModel.findOneAndUpdate(
         { email: e.Email },
         {
@@ -372,9 +373,10 @@ export const uploadExcelAndMap = async (req, res) => {
         },
         { upsert: true, new: true }
       );
-    }));
+    } ) );
 
-    const savedStudents = await Promise.all(students.map(async (s) => {
+    const savedStudents = await Promise.all( students.map( async ( s ) =>
+    {
       return await UserModel.findOneAndUpdate(
         { email: s.Email },
         {
@@ -385,172 +387,183 @@ export const uploadExcelAndMap = async (req, res) => {
         },
         { upsert: true, new: true }
       );
-    }));
+    } ) );
 
-    res.status(200).json({ success: true, evaluators: savedEvaluators, students: savedStudents });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status( 200 ).json( { success: true, evaluators: savedEvaluators, students: savedStudents } );
+  } catch ( err )
+  {
+    console.error( err );
+    res.status( 500 ).json( { success: false, message: err.message } );
   }
 };
 
-// Randomly map students to evaluators
-export const randomMapEvaluator = async (req, res) => {
-  try {
+export const randomMapEvaluator = async ( req, res ) =>
+{
+  try
+  {
 
     const facultyId = req.user._id;
 
-    const evaluators = await UserModel.find({ role: "Evaluator" });
-    const students = await UserModel.find({ role: "Student" });
+    const evaluators = await UserModel.find( { role: "Evaluator" } );
+    const students = await UserModel.find( { role: "Student" } );
 
-    // Shuffle students
-    for (let i = students.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [students[i], students[j]] = [students[j], students[i]];
+    for ( let i = students.length - 1; i > 0; i-- )
+    {
+      const j = Math.floor( Math.random() * ( i + 1 ) );
+      [ students[ i ], students[ j ] ] = [ students[ j ], students[ i ] ];
     }
 
-    // Assign students evenly to evaluators
-    for (let i = 0; i < students.length; i++) {
+    for ( let i = 0; i < students.length; i++ )
+    {
       const evalIndex = i % evaluators.length;
-      evaluators[evalIndex].mappedStudents.push(students[i]._id);
-      await evaluators[evalIndex].save();
+      evaluators[ evalIndex ].mappedStudents.push( students[ i ]._id );
+      await evaluators[ evalIndex ].save();
     }
 
-    res.status(200).json({ success: true, message: "Random mapping completed!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    res.status( 200 ).json( { success: true, message: "Random mapping completed!" } );
+  } catch ( err )
+  {
+    console.error( err );
+    res.status( 500 ).json( { success: false, message: err.message } );
   }
 };
 
 
-export const saveSingleMapping = async (req, res) => {
-  try {
+export const saveSingleMapping = async ( req, res ) =>
+{
+  try
+  {
     const { evaluatorId, studentId } = req.body;
 
-    if (!evaluatorId || !studentId) {
-      return res.status(400).json({ success: false, message: "Evaluator or student ID missing" });
+    if ( !evaluatorId || !studentId )
+    {
+      return res.status( 400 ).json( { success: false, message: "Evaluator or student ID missing" } );
     }
 
-    const evaluator = await UserModel.findById(evaluatorId);
-    const student = await UserModel.findById(studentId);
+    const evaluator = await UserModel.findById( evaluatorId );
+    const student = await UserModel.findById( studentId );
 
-    if (!evaluator || !student) {
-      return res.status(404).json({ success: false, message: "Evaluator or student not found" });
+    if ( !evaluator || !student )
+    {
+      return res.status( 404 ).json( { success: false, message: "Evaluator or student not found" } );
     }
 
-    // Save mapping if not already present
-    if (!evaluator.mappedStudents.includes(student._id)) {
-      evaluator.mappedStudents.push(student._id);
+    if ( !evaluator.mappedStudents.includes( student._id ) )
+    {
+      evaluator.mappedStudents.push( student._id );
       await evaluator.save();
     }
 
-    return res.status(200).json({ success: true, message: "Mapping saved successfully" });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status( 200 ).json( { success: true, message: "Mapping saved successfully" } );
+  } catch ( err )
+  {
+    console.error( err );
+    return res.status( 500 ).json( { success: false, message: err.message } );
   }
 };
 
 
 
-export const generateFacultyReport = async (req, res) => {
-  try {
-    const facultyId = req.user._id; // from protectRoute (logged-in faculty)
+export const generateFacultyReport = async ( req, res ) =>
+{
+  try
+  {
+    const facultyId = req.user._id;
 
-    // ✅ Find faculty details
-    const faculty = await UserModel.findById(facultyId)
-      .populate("assignedCourses", "name code description")
+    const faculty = await UserModel.findById( facultyId )
+      .populate( "assignedCourses", "name code description" )
       .lean();
 
-    if (!faculty) {
-      return res.status(404).json({ success: false, message: "Faculty not found" });
+    if ( !faculty )
+    {
+      return res.status( 404 ).json( { success: false, message: "Faculty not found" } );
     }
 
-    // ✅ Create new PDF
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument( { margin: 50 } );
     const chunks = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-    doc.on("end", () => {
-      const pdfBuffer = Buffer.concat(chunks);
-      res.setHeader("Content-Type", "application/pdf");
+    doc.on( "data", ( chunk ) => chunks.push( chunk ) );
+    doc.on( "end", () =>
+    {
+      const pdfBuffer = Buffer.concat( chunks );
+      res.setHeader( "Content-Type", "application/pdf" );
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename=${faculty.name}_report.pdf`
+        `attachment; filename=${ faculty.name }_report.pdf`
       );
-      res.send(pdfBuffer);
-    });
+      res.send( pdfBuffer );
+    } );
 
-    // ✅ PDF Header
-    doc.fontSize(20).text("Faculty Report", { align: "center" });
+    doc.fontSize( 20 ).text( "Faculty Report", { align: "center" } );
     doc.moveDown();
 
-    // ✅ Faculty Details
-    doc.fontSize(14).text(`Name: ${faculty.name}`);
-    doc.text(`Email: ${faculty.email}`);
-    doc.text(`Faculty ID: ${faculty._id}`);
+    doc.fontSize( 14 ).text( `Name: ${ faculty.name }` );
+    doc.text( `Email: ${ faculty.email }` );
+    doc.text( `Faculty ID: ${ faculty._id }` );
     doc.moveDown();
 
-    // ✅ For each assigned course
-    for (const course of faculty.assignedCourses) {
-      doc.fontSize(16).text(`Course: ${course.name} (${course.code})`);
-      doc.fontSize(12).text(`Description: ${course.description || "N/A"}`);
-      doc.moveDown(0.5);
+    for ( const course of faculty.assignedCourses )
+    {
+      doc.fontSize( 16 ).text( `Course: ${ course.name } (${ course.code })` );
+      doc.fontSize( 12 ).text( `Description: ${ course.description || "N/A" }` );
+      doc.moveDown( 0.5 );
 
-      // 🧩 Get Enrolled Students
-      const enrollments = await Enrollment.find({ course: course._id })
-        .populate("student", "name email")
+      const enrollments = await Enrollment.find( { course: course._id } )
+        .populate( "student", "name email" )
         .lean();
 
-      if (enrollments.length === 0) {
-        doc.text("No students enrolled.\n");
+      if ( enrollments.length === 0 )
+      {
+        doc.text( "No students enrolled.\n" );
         continue;
       }
 
-      doc.text(`Total Students: ${enrollments.length}`);
-      doc.moveDown(0.5);
+      doc.text( `Total Students: ${ enrollments.length }` );
+      doc.moveDown( 0.5 );
 
-      // 🧩 Get tasks and evaluations per student
-      for (const { student } of enrollments) {
-        doc.font("Helvetica-Bold").text(`👤 Student: ${student.name} (${student.email})`);
-        doc.font("Helvetica").moveDown(0.2);
+      for ( const { student } of enrollments )
+      {
+        doc.font( "Helvetica-Bold" ).text( `👤 Student: ${ student.name } (${ student.email })` );
+        doc.font( "Helvetica" ).moveDown( 0.2 );
 
-        const submissions = await Submission.find({ student: student._id })
-          .populate({
+        const submissions = await Submission.find( { student: student._id } )
+          .populate( {
             path: "task",
             match: { course: course._id },
             select: "title",
-          })
+          } )
           .lean();
 
-        if (!submissions.length) {
-          doc.text("   - No submissions found.\n");
+        if ( !submissions.length )
+        {
+          doc.text( "   - No submissions found.\n" );
           continue;
         }
 
-        for (const sub of submissions) {
-          if (!sub.task) continue; // task not from this course
+        for ( const sub of submissions )
+        {
+          if ( !sub.task ) continue;
 
-          const evalData = await EvaluationModel.findOne({ submission: sub._id }).lean();
-          const marks = evalData ? `${evalData.marks}/${evalData.totalMarks}` : "Not evaluated";
+          const evalData = await EvaluationModel.findOne( { submission: sub._id } ).lean();
+          const marks = evalData ? `${ evalData.marks }/${ evalData.totalMarks }` : "Not evaluated";
 
-          doc.text(`   • Task: ${sub.task.title}`);
-          doc.text(`     Marks: ${marks}`);
-          if (evalData?.remarks) doc.text(`     Remarks: ${evalData.remarks}`);
-          doc.moveDown(0.2);
+          doc.text( `   • Task: ${ sub.task.title }` );
+          doc.text( `     Marks: ${ marks }` );
+          if ( evalData?.remarks ) doc.text( `     Remarks: ${ evalData.remarks }` );
+          doc.moveDown( 0.2 );
         }
-        doc.moveDown(0.5);
+        doc.moveDown( 0.5 );
       }
 
-      doc.moveDown(1);
-      doc.text("----------------------------------------");
-      doc.moveDown(1);
+      doc.moveDown( 1 );
+      doc.text( "----------------------------------------" );
+      doc.moveDown( 1 );
     }
 
     doc.end();
-  } catch (error) {
-    console.error("Error generating faculty report:", error);
-    res.status(500).json({ success: false, message: "Failed to generate report" });
+  } catch ( error )
+  {
+    console.error( "Error generating faculty report:", error );
+    res.status( 500 ).json( { success: false, message: "Failed to generate report" } );
   }
 };
 

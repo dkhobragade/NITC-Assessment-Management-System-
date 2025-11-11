@@ -8,7 +8,6 @@ const Result = () =>
     const [ results, setResults ] = useState( [] );
     const [ loading, setLoading ] = useState( false );
 
-    // Helper to show badge color by status
     const getStatusBadge = ( status ) =>
     {
         if ( status === "Evaluated" )
@@ -18,7 +17,6 @@ const Result = () =>
         return <Badge color="gray" variant="light">Unknown</Badge>;
     };
 
-    // ✅ Fetch student results from backend
     const fetchResults = async () =>
     {
         try

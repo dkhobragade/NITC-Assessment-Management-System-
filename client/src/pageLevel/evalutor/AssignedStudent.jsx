@@ -1,17 +1,5 @@
 import { useState, useEffect } from "react";
-import
-{
-    Box,
-    Title,
-    Card,
-    Table,
-    Button,
-    TextInput,
-    Group,
-    Text,
-    Loader,
-    Notification,
-} from "@mantine/core";
+import { Box, Title, Card, Table, Button, TextInput, Group, Text, Loader, Notification } from "@mantine/core";
 import { IconFileText, IconCheck } from "@tabler/icons-react";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
 import { postWrapper } from "../../lib/api/postWrapper";
@@ -23,7 +11,6 @@ const AssignedStudent = () =>
     const [ loading, setLoading ] = useState( false );
     const [ notification, setNotification ] = useState( null );
 
-    // ✅ Fetch assigned students + their submissions
     const getAllAssignedStudentDetails = async () =>
     {
         try
@@ -40,7 +27,7 @@ const AssignedStudent = () =>
                     student.submissions.forEach( ( sub ) =>
                     {
                         formatted.push( {
-                            uniqueKey: `${ student._id }-${ sub.submissionId }`, // ✅ absolutely unique key
+                            uniqueKey: `${ student._id }-${ sub.submissionId }`,
                             submissionId: sub.submissionId,
                             studentId: student._id,
                             studentName: student.name,
@@ -54,7 +41,6 @@ const AssignedStudent = () =>
                     } );
                 } );
 
-                // ✅ Create a new array copy (no shared refs)
                 setStudentSubmissions( [ ...formatted ] );
             } else
             {
@@ -70,7 +56,6 @@ const AssignedStudent = () =>
         }
     };
 
-    // ✅ Handle marks change per submission
     const handleMarksChange = ( uniqueKey, value ) =>
     {
         setStudentSubmissions( ( prev ) =>
@@ -80,7 +65,6 @@ const AssignedStudent = () =>
         );
     };
 
-    // ✅ Submit marks for each graded submission
     const handleSubmitMarks = async () =>
     {
         try

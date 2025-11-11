@@ -1,10 +1,6 @@
 import { BASEURL } from "../constant";
 
-/**
- * @param {string} path - API endpoint
- * @param {object} options - fetch options
- * @param {boolean} isBlob - if true, return response as Blob (for files)
- */
+
 export async function fetchWrapper ( path, options = {}, isBlob = false )
 {
     const response = await fetch( `${ BASEURL }${ path }`, {

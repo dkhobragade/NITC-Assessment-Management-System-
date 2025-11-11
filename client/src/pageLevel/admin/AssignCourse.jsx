@@ -89,6 +89,7 @@ const AssignCourse = () =>
             if ( resp.success )
             {
                 toast.success( resp.message )
+                getAssignedCourses()
             }
         } ).catch( ( err ) =>
         {

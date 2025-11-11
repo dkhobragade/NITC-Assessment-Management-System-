@@ -56,7 +56,6 @@ export const enrollStudentByCode = async ( req, res ) =>
             await course.save();
         }
 
-        // ✅ Always return proper JSON
         return res.status( 200 ).json( {
             success: true,
             message: `Enrolled successfully in ${ course.name }`,
@@ -70,7 +69,6 @@ export const enrollStudentByCode = async ( req, res ) =>
     {
         console.error( "Error enrolling student:", err );
 
-        // ✅ Return JSON on server error
         return res.status( 500 ).json( {
             success: false,
             message: err.message || "Server error while enrolling student",
@@ -84,9 +82,8 @@ export const getStudentEnrollments = async ( req, res ) =>
 {
     try
     {
-        const studentId = req.user._id; // logged-in student
+        const studentId = req.user._id;
 
-        // Find all enrollments for this student
         const enrollments = await EnrollmentModel.find( { student: studentId } )
             .populate( {
                 path: "course",
@@ -98,7 +95,6 @@ export const getStudentEnrollments = async ( req, res ) =>
             } )
             .lean();
 
-        // Prepare data
         const enrolledCourses = enrollments.map( ( enroll ) => ( {
             enrollmentId: enroll._id,
             courseId: enroll.course._id,
@@ -140,7 +136,6 @@ export const getStudentEnrollmentsWithTaskCount = async ( req, res ) =>
     {
         const studentId = req.user._id;
 
-        // Find all enrollments
         const enrollments = await EnrollmentModel.find( { student: studentId } )
             .populate( {
                 path: "course",
@@ -157,7 +152,6 @@ export const getStudentEnrollmentsWithTaskCount = async ( req, res ) =>
             {
                 const course = enroll.course;
 
-                // Count tasks created for this course
                 const taskCount = await TaskModel.countDocuments( { course: course._id } );
 
                 return {
@@ -176,7 +170,7 @@ export const getStudentEnrollmentsWithTaskCount = async ( req, res ) =>
                         : null,
                     totalStudents: course.students.length,
                     enrolledAt: enroll.enrolledAt,
-                    taskCount, // added
+                    taskCount,
                 };
             } )
         );
@@ -204,20 +198,17 @@ export const getTasksForEnrolledCourse = async ( req, res ) =>
         const studentId = req.user._id;
         const { courseId } = req.params;
 
-        // Ensure student is enrolled
         const enrollment = await EnrollmentModel.findOne( { student: studentId, course: courseId } );
         if ( !enrollment )
         {
             return res.status( 403 ).json( { success: false, message: "Student not enrolled in this course" } );
         }
 
-        // Fetch tasks for this course
         const tasks = await TaskModel.find( { course: courseId } )
             .populate( "course", "name code" )
             .populate( "createdBy", "name email" )
             .lean();
 
-        // Attach student's own submission to each task
         for ( const task of tasks )
         {
             const submission = await Submission.findOne( { student: studentId, task: task._id } ).lean();
@@ -258,14 +249,13 @@ export const studentUploadPDF = async ( req, res ) =>
             return res.status( 404 ).json( { success: false, message: "Task not found" } );
         }
 
-        // Upload to Cloudinary
         const result = await uploadToCloudinary( req.file.buffer, `${ studentId }-${ taskId }` );
 
         let submission = await Submission.findOne( { student: studentId, task: taskId } );
 
         if ( submission )
         {
-            submission.fileUrl = result.secure_url; // ✅ Update URL
+            submission.fileUrl = result.secure_url;
             submission.submittedAt = new Date();
             submission.status = "Submitted";
             await submission.save();
@@ -274,13 +264,12 @@ export const studentUploadPDF = async ( req, res ) =>
             submission = await Submission.create( {
                 student: studentId,
                 task: taskId,
-                fileUrl: result.secure_url, // ✅ Save URL
+                fileUrl: result.secure_url,
                 fileName: req.file.originalname,
                 status: "Submitted",
             } );
         }
 
-        // Return updated submission
         return res.status( 200 ).json( {
             success: true,
             message: "File uploaded successfully",
@@ -307,7 +296,6 @@ export const getTasksForCourse = async ( req, res ) =>
 
         console.log( "courseId", courseId, studentId )
 
-        // ✅ Find all tasks for this course
         const tasks = await TaskModel.find( { course: courseId } )
             .populate( "course", "name code description" )
             .populate( "createdBy", "name email" )
@@ -315,7 +303,6 @@ export const getTasksForCourse = async ( req, res ) =>
 
         console.log( "tasks", tasks )
 
-        // ✅ Filter submissions to include only this student's
         const filteredTasks = tasks.map( ( task ) =>
         {
             const mySubmission = task.submissions?.find(
@@ -326,7 +313,7 @@ export const getTasksForCourse = async ( req, res ) =>
 
             return {
                 ...task,
-                submissions: mySubmission ? [ mySubmission ] : [], // only your submission
+                submissions: mySubmission ? [ mySubmission ] : [],
             };
         } );
 
@@ -351,15 +338,14 @@ export const getStudentResults = async ( req, res ) =>
     {
         const studentId = req.user._id;
 
-        // ✅ Find all submissions of this student with full nested population
         const submissions = await Submission.find( { student: studentId } )
             .populate( {
                 path: "task",
                 select: "title course",
                 populate: {
                     path: "course",
-                    model: "Course", // ✅ ensure Mongoose knows which model to use
-                    select: "courseName courseCode name code", // support both naming styles
+                    model: "Course",
+                    select: "courseName courseCode name code",
                 },
             } )
             .populate( {
@@ -368,7 +354,6 @@ export const getStudentResults = async ( req, res ) =>
             } )
             .lean();
 
-        // ✅ For each submission, also fetch its evaluation + evaluator name
         const results = await Promise.all(
             submissions.map( async ( sub ) =>
             {
@@ -376,10 +361,8 @@ export const getStudentResults = async ( req, res ) =>
                     .populate( "evaluator", "name" )
                     .lean();
 
-                // 🧠 Debug: verify course object
                 console.log( "Course populated:", sub.task?.course );
 
-                // ✅ Support both naming variants: (courseName/name) and (courseCode/code)
                 const course = sub.task?.course || {};
 
                 return {
@@ -399,7 +382,6 @@ export const getStudentResults = async ( req, res ) =>
             } )
         );
 
-        // ✅ Send response
         res.status( 200 ).json( {
             success: true,
             count: results.length,

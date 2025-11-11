@@ -1,23 +1,6 @@
 import { useState, useEffect } from "react";
-import
-{
-    Card,
-    Title,
-    Text,
-    Grid,
-    Button,
-    Group,
-    FileButton,
-    Notification,
-    Loader,
-} from "@mantine/core";
-import
-{
-    IconUpload,
-    IconCheck,
-    IconFileText,
-    IconEye,
-} from "@tabler/icons-react";
+import { Card, Title, Text, Grid, Button, Group, FileButton, Notification, Loader } from "@mantine/core";
+import { IconUpload, IconCheck, IconFileText } from "@tabler/icons-react";
 import { fetchWrapper } from "../../lib/api/fetchWrapper";
 import { postWrapper } from "../../lib/api/postWrapper";
 import { toast } from "react-toastify";
@@ -80,11 +63,15 @@ const Task = () =>
 
         try
         {
-            const uploadResp = await postWrapper( `student/upload/${ taskId }`, formData, true );
+            const uploadResp = await postWrapper(
+                `student/upload/${ taskId }`,
+                formData,
+                true
+            );
             if ( uploadResp.success )
             {
                 toast.success( "File uploaded successfully!" );
-                await fetchStudentTasks(); // Refresh list after upload
+                await fetchStudentTasks();
             }
         } catch ( err )
         {
@@ -112,68 +99,67 @@ const Task = () =>
             </Title>
 
             <Grid gutter="lg">
-                { tasks.map( ( task ) => (
-                    <Grid.Col span={ { base: 12, md: 6 } } key={ task._id }>
-                        <Card shadow="sm" padding="lg" radius="md" withBorder>
-                            <Title order={ 4 } mb="sm" c="blue">
-                                { task.title }
-                            </Title>
-                            <Text fw={ 500 } mb="xs">
-                                Course: { task.courseName }
-                            </Text>
-                            <Text size="sm" mb="sm">
-                                { task.description }
-                            </Text>
-                            <Text size="sm" c="dimmed" mb="md">
-                                Deadline: <b>{ new Date( task.deadline ).toLocaleDateString() }</b>
-                            </Text>
+                { tasks.map( ( task ) =>
+                {
+                    const deadlinePassed = new Date() > new Date( task.deadline );
+                    const alreadySubmitted = !!task.submission;
 
-                            <Group>
-                                { task.submission ? (
-                                    <Button
-                                        component="a"
-                                        href={ task.submission.fileUrl }
-                                        download={ task.submission.fileName || "submission.pdf" } // ✅ This sets correct filename
-                                        target="_blank"
-                                        leftSection={ <IconEye size={ 16 } /> }
-                                        color="green"
-                                        variant="light"
-                                    >
-                                        View Submission
-                                    </Button>
-                                ) : (
-                                    <FileButton
-                                        onChange={ ( file ) => handleFileUpload( task._id, file ) }
-                                        accept="application/pdf"
-                                    >
-                                        { ( props ) => (
-                                            <Button
-                                                { ...props }
-                                                leftSection={ <IconUpload size={ 16 } /> }
-                                                color="blue"
-                                                variant="light"
-                                                loading={ isUploading[ task._id ] || false }
-                                            >
-                                                Upload PDF
-                                            </Button>
-                                        ) }
-                                    </FileButton>
-                                ) }
+                    return (
+                        <Grid.Col span={ { base: 12, md: 6 } } key={ task._id }>
+                            <Card shadow="sm" padding="lg" radius="md" withBorder>
+                                <Title order={ 4 } mb="sm" c="blue">
+                                    { task.title }
+                                </Title>
+                                <Text fw={ 500 } mb="xs">
+                                    Course: { task.courseName }
+                                </Text>
+                                <Text size="sm" mb="sm">
+                                    { task.description }
+                                </Text>
+                                <Text size="sm" c="dimmed" mb="md">
+                                    Deadline: <b>{ new Date( task.deadline ).toLocaleDateString() }</b>
+                                </Text>
 
+                                <Group>
+                                    { alreadySubmitted ? (
+                                        <Text size="sm" c="green">
+                                            <IconFileText size={ 16 } style={ { verticalAlign: "middle" } } />{ " " }
+                                            Already Submitted
+                                        </Text>
+                                    ) : deadlinePassed ? (
+                                        <Text size="sm" c="red">
+                                            Deadline passed, upload not allowed
+                                        </Text>
+                                    ) : (
+                                        <FileButton
+                                            onChange={ ( file ) => handleFileUpload( task._id, file ) }
+                                            accept="application/pdf"
+                                        >
+                                            { ( props ) => (
+                                                <Button
+                                                    { ...props }
+                                                    leftSection={ <IconUpload size={ 16 } /> }
+                                                    color="blue"
+                                                    variant="light"
+                                                    loading={ isUploading[ task._id ] || false }
+                                                >
+                                                    Upload PDF
+                                                </Button>
+                                            ) }
+                                        </FileButton>
+                                    ) }
 
-                                { uploadedFiles[ task._id ] && (
-                                    <Text size="sm" c="green">
-                                        <IconFileText
-                                            size={ 16 }
-                                            style={ { verticalAlign: "middle" } }
-                                        />{ " " }
-                                        { uploadedFiles[ task._id ] }
-                                    </Text>
-                                ) }
-                            </Group>
-                        </Card>
-                    </Grid.Col>
-                ) ) }
+                                    { uploadedFiles[ task._id ] && !alreadySubmitted && !deadlinePassed && (
+                                        <Text size="sm" c="green">
+                                            <IconFileText size={ 16 } style={ { verticalAlign: "middle" } } />{ " " }
+                                            { uploadedFiles[ task._id ] }
+                                        </Text>
+                                    ) }
+                                </Group>
+                            </Card>
+                        </Grid.Col>
+                    );
+                } ) }
             </Grid>
 
             { showNotification && (

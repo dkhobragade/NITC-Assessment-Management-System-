@@ -11,7 +11,7 @@ const CreateTask = () =>
     const [ title, setTitle ] = useState( '' );
     const [ description, setDescription ] = useState( '' );
     const [ dueDate, setDueDate ] = useState( null );
-    const [ pdfFile, setPdfFile ] = useState( null ); // ✅ new state for PDF
+    const [ pdfFile, setPdfFile ] = useState( null );
     const [ isLoading, setIsLoading ] = useState( false )
 
     const [ assignedCourse, setAssignedCourse ] = useState( '' );
