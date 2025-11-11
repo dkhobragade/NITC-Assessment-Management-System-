@@ -1,0 +1,20 @@
+{
+  "name": "nitc-assessment-management-system-",
+  "version": "1.0.0",
+  "description": "The **NITC Assessment Management System** is a generalized platform designed to plan, organize, and conduct academic evaluations such as lab assessments, project reviews, and admission tests at NITC.\r It provides a centralized system for faculty members to create evaluation tasks, assign evaluators, manage candidate details, and generate automated reports.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkhobragade/NITC-Assessment-Management-System-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dkhobragade/NITC-Assessment-Management-System-/issues"
+  },
+  "homepage": "https://github.com/dkhobragade/NITC-Assessment-Management-System-#readme"
+}

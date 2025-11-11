@@ -1,34 +1,59 @@
-# Created by your MERN project instructor at NIT Calicut, Sept 2025
+# ---------------------------------------------------
+# 🧱 Core dependencies and lock files
+# ---------------------------------------------------
+# These are automatically generated and should NOT be pushed
+node_modules/
+client/node_modules/
+server/node_modules/
 
-# Dependencies and lock files
-# These folders can be huge and should be installed by each developer locally.
-/node_modules
-/client/node_modules
-/server/node_modules
-npm-debug.log
-yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 pnpm-lock.yaml
+package-lock.json
 
-# Build output folders
-# These are generated automatically from your source code.
-/client/dist
-/client/build
-/server/dist
+# ---------------------------------------------------
+# ⚙️ Build outputs (compiled files)
+# ---------------------------------------------------
+# Frontend build folders
+client/dist/
+client/build/
 
-# Environment variables
-# This is CRITICAL. These files contain secrets like database passwords.
+# Backend build/output folders (if using TypeScript or build step)
+server/dist/
+
+# ---------------------------------------------------
+# 🔒 Environment variables
+# ---------------------------------------------------
+# These files often contain secrets (DB URLs, API keys, etc.)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-/server/.env
-/client/.env
+client/.env
+server/.env
 
-# macOS and Windows specific files
+# ---------------------------------------------------
+# 💻 OS-specific junk
+# ---------------------------------------------------
 .DS_Store
 Thumbs.db
 
-# IDE and editor directories
+# ---------------------------------------------------
+# 🧠 IDE / Editor specific
+# ---------------------------------------------------
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# ---------------------------------------------------
+# 📦 Other common ignores
+# ---------------------------------------------------
+# Log files
+*.log
+
+# Optional: local testing data or uploads
+uploads/
+tmp/
