@@ -8,24 +8,20 @@ export const signup = async ( req, res ) =>
   {
     const { name, collegeId, email, password, role } = req.body;
 
-    // Basic validation
     if ( !name || !collegeId || !email || !password || !role )
     {
       return res.status( 400 ).json( { message: "All fields are required" } );
     }
 
-    // Check if user already exists
     const existingUser = await UserModel.findOne( { email } );
     if ( existingUser )
     {
       return res.status( 400 ).json( { message: "User already exists" } );
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt( 10 );
     const hashedPassword = await bcrypt.hash( password, salt );
 
-    // Create user
     const newUser = await UserModel.create( {
       name,
       email,
@@ -34,7 +30,6 @@ export const signup = async ( req, res ) =>
       collegeId,
     } );
 
-    // Generate JWT and set cookie
     generateToken( { userId: newUser._id, res } );
 
     res.status( 201 ).json( {
@@ -62,7 +57,6 @@ export const login = async ( req, res ) =>
   {
     const { email, password } = req.body;
 
-    // Validation
     if ( !email || !password )
     {
       return res.status( 400 ).json( { message: "Email and password are required" } );
@@ -71,11 +65,9 @@ export const login = async ( req, res ) =>
     const user = await UserModel.findOne( { email } );
     if ( !user ) return res.status( 404 ).json( { message: "User not found" } );
 
-    // Compare password
     const isMatch = await bcrypt.compare( password, user.password );
     if ( !isMatch ) return res.status( 401 ).json( { message: "Invalid credentials" } );
 
-    // Check approval status
     if ( !user.isApproved )
     {
       let pendingMessage = "Your account is awaiting approval.";
@@ -91,7 +83,6 @@ export const login = async ( req, res ) =>
       return res.status( 403 ).json( { message: pendingMessage } );
     }
 
-    // Generate token
     generateToken( { userId: user._id, res } );
 
     res.status( 200 ).json( {
