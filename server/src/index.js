@@ -9,28 +9,42 @@ import evaluatorRoutes from '../src/routes/evalutorRoutes.js'
 import studentRoutes from '../src/routes/studentRoutes.js'
 import cookieparser from 'cookie-parser'
 import cors from 'cors'
+import path from 'path'
 
 const app = express()
 
 const PORT = process.env.PORT;
 
+const __dirname = path.resolve()
+
 app.use(
-  cors({
+  cors( {
     origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: [ "GET", "POST", "PUT", "DELETE" ],
     credentials: true,
-  })
+  } )
 )
-app.use(express.json())
-app.use(cookieparser());
+app.use( express.json() )
+app.use( cookieparser() );
 
-app.use('/api/auth',authRoutes)
-app.use('/api/admin',adminRoutes)
-app.use('/api/faculty',facultyRoutes)
-app.use('/api/evaluator',evaluatorRoutes)
-app.use('/api/student',studentRoutes)
+app.use( '/api/auth', authRoutes )
+app.use( '/api/admin', adminRoutes )
+app.use( '/api/faculty', facultyRoutes )
+app.use( '/api/evaluator', evaluatorRoutes )
+app.use( '/api/student', studentRoutes )
 
-app.listen(PORT, () => {
-  console.log("Server is running on http://localhost:" + PORT);
+if ( process.env.NODE_ENV === "production" )
+{
+  app.use( express.static( path.join( __dirname, "../client/dist" ) ) )
+
+  app.get( "*", ( req, res ) =>
+  {
+    res.sendFile( path.join( __dirname, "../client", "dist", "index.html" ) )
+  } )
+}
+
+app.listen( PORT, () =>
+{
+  console.log( "Server is running on http://localhost:" + PORT );
   connectDB();
-});
+} );
