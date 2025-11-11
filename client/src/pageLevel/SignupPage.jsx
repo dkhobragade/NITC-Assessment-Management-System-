@@ -38,6 +38,11 @@ const SignupPage = () =>
             return toast.error( "Please fill all the fields" );
         }
 
+        if ( !formData.email.toLowerCase().endsWith( "@nitc.ac.in" ) )
+        {
+            return toast.info( "Not a valid institutional email" );
+        }
+
         setIsLoading( true );
 
         postWrapper( "auth/signup", {
