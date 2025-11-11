@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import LandingPage from './pageLevel/LandingPage'
 import SignupPage from './pageLevel/SignupPage'
 import LoginPage from './pageLevel/LoginPage'
@@ -25,6 +25,7 @@ import './App.css'
 import { useAtom } from 'jotai'
 import { userAtom } from './lib/store/userAtom'
 import { useEffect } from 'react'
+import { ForgotPassword } from './pageLevel/ForgotPassword'
 
 function App ()
 {
@@ -46,6 +47,7 @@ function App ()
       <Route path="/" element={ <LandingPage /> } />
       <Route path="/signup" element={ <SignupPage /> } />
       <Route path="/login" element={ <LoginPage /> } />
+      <Route path="/forgot-password" element={ <ForgotPassword /> } />
 
 
       <Route element={ <CommonLayout /> }>
@@ -67,6 +69,7 @@ function App ()
         <Route path="/student-task" element={ <Task /> } />
         <Route path="/student-result" element={ <Result /> } />
       </Route>
+      <Route path="*" element={ <Navigate to="/" replace /> } />
     </Routes>
     <ToastContainer autoClose={ 5000 } position="bottom-right" />
   </>
