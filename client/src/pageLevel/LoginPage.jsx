@@ -43,6 +43,9 @@ const LoginPage = () =>
                         role: resp.user.role,
                         collegeId: resp.user.collegeId,
                     } );
+                    localStorage.setItem( "user", JSON.stringify( resp.user ) );
+                    navigate( `/${ resp.user.role.toLowerCase() }-overview` );
+
 
                     if ( resp.user.role === "Admin" )
                     {

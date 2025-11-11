@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import
 {
     Card,
@@ -9,44 +9,101 @@ import
     Group,
     FileButton,
     Notification,
+    Loader,
 } from "@mantine/core";
-import { IconUpload, IconCheck, IconFileText } from "@tabler/icons-react";
+import
+{
+    IconUpload,
+    IconCheck,
+    IconFileText,
+    IconEye,
+} from "@tabler/icons-react";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
+import { postWrapper } from "../../lib/api/postWrapper";
+import { toast } from "react-toastify";
 
 const Task = () =>
 {
-    // Mock data for tasks (replace with API data later)
-    const tasks = [
-        {
-            id: 1,
-            course: "Data Structures",
-            title: "Assignment 1: Linked Lists",
-            description:
-                "Implement a linked list with basic operations: insertion, deletion, traversal, and reversal.",
-            deadline: "2025-11-20",
-        },
-        {
-            id: 2,
-            course: "Database Systems",
-            title: "Mini Project: ER Diagram",
-            description:
-                "Design an ER diagram for a library management system and explain relationships.",
-            deadline: "2025-11-25",
-        },
-    ];
-
+    const [ tasks, setTasks ] = useState( [] );
     const [ uploadedFiles, setUploadedFiles ] = useState( {} );
     const [ showNotification, setShowNotification ] = useState( false );
+    const [ isUploading, setIsUploading ] = useState( {} );
 
-    const handleFileUpload = ( taskId, file ) =>
+    useEffect( () =>
+    {
+        fetchStudentTasks();
+    }, [] );
+
+    const fetchStudentTasks = async () =>
+    {
+        try
+        {
+            const resp = await fetchWrapper( "student/enrollments-with-tasks" );
+
+            if ( resp.success )
+            {
+                const allTasks = [];
+
+                for ( const course of resp.courses )
+                {
+                    const taskResp = await fetchWrapper(
+                        `student/course/${ course.courseId }/tasks`
+                    );
+
+                    if ( taskResp.success )
+                    {
+                        const formattedTasks = taskResp.tasks.map( ( task ) => ( {
+                            ...task,
+                            courseName: task.course?.name || course.name,
+                            submission: task.submissions?.[ 0 ] || null,
+                        } ) );
+                        allTasks.push( ...formattedTasks );
+                    }
+                }
+
+                setTasks( allTasks );
+            }
+        } catch ( err )
+        {
+            console.error( "Error fetching tasks:", err );
+            toast.error( "Failed to fetch tasks" );
+        }
+    };
+
+    const handleFileUpload = async ( taskId, file ) =>
     {
         setUploadedFiles( ( prev ) => ( { ...prev, [ taskId ]: file.name } ) );
-        setShowNotification( true );
+        setIsUploading( ( prev ) => ( { ...prev, [ taskId ]: true } ) );
 
-        // Here, you can integrate API upload logic:
-        // const formData = new FormData();
-        // formData.append("file", file);
-        // await axios.post(`${BASEURL}/student/upload/${taskId}`, formData)
+        const formData = new FormData();
+        formData.append( "file", file );
+
+        try
+        {
+            const uploadResp = await postWrapper( `student/upload/${ taskId }`, formData, true );
+            if ( uploadResp.success )
+            {
+                toast.success( "File uploaded successfully!" );
+                await fetchStudentTasks(); // Refresh list after upload
+            }
+        } catch ( err )
+        {
+            console.error( "File upload failed:", err );
+            toast.error( "File upload failed" );
+        } finally
+        {
+            setIsUploading( ( prev ) => ( { ...prev, [ taskId ]: false } ) );
+            setShowNotification( true );
+        }
     };
+
+    if ( !tasks.length )
+        return (
+            <div style={ { textAlign: "center", padding: "50px" } }>
+                <Loader size="lg" color="blue" />
+                <Text mt="md">Loading tasks...</Text>
+            </div>
+        );
 
     return (
         <div style={ { padding: "20px" } }>
@@ -56,34 +113,61 @@ const Task = () =>
 
             <Grid gutter="lg">
                 { tasks.map( ( task ) => (
-                    <Grid.Col span={ { base: 12, md: 6 } } key={ task.id }>
+                    <Grid.Col span={ { base: 12, md: 6 } } key={ task._id }>
                         <Card shadow="sm" padding="lg" radius="md" withBorder>
                             <Title order={ 4 } mb="sm" c="blue">
                                 { task.title }
                             </Title>
                             <Text fw={ 500 } mb="xs">
-                                Course: { task.course }
+                                Course: { task.courseName }
                             </Text>
                             <Text size="sm" mb="sm">
                                 { task.description }
                             </Text>
                             <Text size="sm" c="dimmed" mb="md">
-                                Deadline: <b>{ task.deadline }</b>
+                                Deadline: <b>{ new Date( task.deadline ).toLocaleDateString() }</b>
                             </Text>
 
                             <Group>
-                                <FileButton onChange={ ( file ) => handleFileUpload( task.id, file ) } accept="application/pdf">
-                                    { ( props ) => (
-                                        <Button { ...props } leftSection={ <IconUpload size={ 16 } /> } color="blue" variant="light">
-                                            Upload PDF
-                                        </Button>
-                                    ) }
-                                </FileButton>
+                                { task.submission ? (
+                                    <Button
+                                        component="a"
+                                        href={ task.submission.fileUrl }
+                                        download={ task.submission.fileName || "submission.pdf" } // ✅ This sets correct filename
+                                        target="_blank"
+                                        leftSection={ <IconEye size={ 16 } /> }
+                                        color="green"
+                                        variant="light"
+                                    >
+                                        View Submission
+                                    </Button>
+                                ) : (
+                                    <FileButton
+                                        onChange={ ( file ) => handleFileUpload( task._id, file ) }
+                                        accept="application/pdf"
+                                    >
+                                        { ( props ) => (
+                                            <Button
+                                                { ...props }
+                                                leftSection={ <IconUpload size={ 16 } /> }
+                                                color="blue"
+                                                variant="light"
+                                                loading={ isUploading[ task._id ] || false }
+                                            >
+                                                Upload PDF
+                                            </Button>
+                                        ) }
+                                    </FileButton>
+                                ) }
 
-                                { uploadedFiles[ task.id ] && (
+
+                                { uploadedFiles[ task._id ] && (
                                     <Text size="sm" c="green">
-                                        <IconFileText size={ 16 } style={ { verticalAlign: "middle" } } />{ " " }
-                                        { uploadedFiles[ task.id ] }
+                                        <IconFileText
+                                            size={ 16 }
+                                            style={ { verticalAlign: "middle" } }
+                                        />{ " " }
+                                        { uploadedFiles[ task._id ] }
                                     </Text>
                                 ) }
                             </Group>

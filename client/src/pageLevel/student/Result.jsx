@@ -1,51 +1,65 @@
-import { Card, Table, Title, Text, Badge } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Card, Table, Title, Text, Badge, Loader } from "@mantine/core";
+import { fetchWrapper } from "../../lib/api/fetchWrapper";
+import { toast } from "react-toastify";
 
 const Result = () =>
 {
-    // Mock data for demonstration — can be replaced by API data later
-    const results = [
-        {
-            id: 1,
-            course: "Data Structures",
-            task: "Assignment 1: Linked Lists",
-            marks: 85,
-            total: 100,
-            remarks: "Good implementation, minor optimization needed.",
-            status: "Evaluated",
-        },
-        {
-            id: 2,
-            course: "Database Systems",
-            task: "Mini Project: ER Diagram",
-            marks: null,
-            total: 100,
-            remarks: "",
-            status: "Pending",
-        },
-        {
-            id: 3,
-            course: "Operating Systems",
-            task: "Scheduling Algorithms Report",
-            marks: 90,
-            total: 100,
-            remarks: "Excellent work with proper diagrams.",
-            status: "Evaluated",
-        },
-    ];
+    const [ results, setResults ] = useState( [] );
+    const [ loading, setLoading ] = useState( false );
 
     // Helper to show badge color by status
     const getStatusBadge = ( status ) =>
     {
         if ( status === "Evaluated" )
             return <Badge color="teal" variant="light">Evaluated</Badge>;
-        if ( status === "Pending" )
+        if ( status === "Submitted" )
             return <Badge color="yellow" variant="light">Pending</Badge>;
         return <Badge color="gray" variant="light">Unknown</Badge>;
     };
 
+    // ✅ Fetch student results from backend
+    const fetchResults = async () =>
+    {
+        try
+        {
+            setLoading( true );
+            const resp = await fetchWrapper( "student/results" );
+            if ( resp.success )
+            {
+                setResults( resp.results );
+            } else
+            {
+                toast.error( "Failed to fetch results" );
+            }
+        } catch ( err )
+        {
+            console.error( "Error fetching results:", err );
+            toast.error( "Server error while fetching results" );
+        } finally
+        {
+            setLoading( false );
+        }
+    };
+
+    useEffect( () =>
+    {
+        fetchResults();
+    }, [] );
+
+    if ( loading )
+        return (
+            <div style={ { textAlign: "center", padding: "40px" } }>
+                <Loader color="blue" size="lg" />
+                <Text mt="md">Loading your results...</Text>
+            </div>
+        );
+
     return (
         <div style={ { padding: "20px" } }>
-            <Title order={ 2 } mb="lg">My Results</Title>
+            <Title order={ 2 } mb="lg">
+                My Results
+            </Title>
 
             <Card shadow="sm" padding="lg" radius="md" withBorder>
                 { results.length > 0 ? (
@@ -55,32 +69,26 @@ const Result = () =>
                                 <Table.Th>Course</Table.Th>
                                 <Table.Th>Task</Table.Th>
                                 <Table.Th>Marks</Table.Th>
-                                <Table.Th>Remarks</Table.Th>
                                 <Table.Th>Status</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
 
                         <Table.Tbody>
                             { results.map( ( r ) => (
-                                <Table.Tr key={ r.id }>
+                                <Table.Tr key={ r.submissionId }>
                                     <Table.Td>
-                                        <Text fw={ 500 }>{ r.course }</Text>
+                                        <Text fw={ 500 }>
+                                            { r.courseName } ({ r.courseCode })
+                                        </Text>
                                     </Table.Td>
-                                    <Table.Td>{ r.task }</Table.Td>
+                                    <Table.Td>{ r.taskTitle }</Table.Td>
                                     <Table.Td>
-                                        { r.status === "Pending" ? (
-                                            <Text c="dimmed">-</Text>
-                                        ) : (
-                                            <Text>
-                                                { r.marks } / { r.total }
+                                        { r.status === "Evaluated" ? (
+                                            <Text fw={ 500 } c="green">
+                                                { r.marks } / { r.totalMarks }
                                             </Text>
-                                        ) }
-                                    </Table.Td>
-                                    <Table.Td>
-                                        { r.status === "Pending" ? (
-                                            <Text c="dimmed">Awaiting evaluation</Text>
                                         ) : (
-                                            <Text>{ r.remarks }</Text>
+                                            <Text c="dimmed">Awaiting Evaluation</Text>
                                         ) }
                                     </Table.Td>
                                     <Table.Td>{ getStatusBadge( r.status ) }</Table.Td>
@@ -89,7 +97,9 @@ const Result = () =>
                         </Table.Tbody>
                     </Table>
                 ) : (
-                    <Text c="dimmed" ta="center">No results available yet.</Text>
+                    <Text c="dimmed" ta="center">
+                        No results available yet.
+                    </Text>
                 ) }
             </Card>
         </div>

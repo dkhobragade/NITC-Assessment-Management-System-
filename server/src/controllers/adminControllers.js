@@ -1,5 +1,9 @@
+import PDFDocument from "pdfkit";
 import UserModel from "../models/UserModel.js";
 import CourseModel from "../models/CourseModel.js";
+import Submission from "../models/Submission.js";
+import Enrollment from "../models/Enrollment.js";
+import Evaluation from "../models/Evaluation.js";
 
 export const approveFaculty = async (req, res) => {
   try {
@@ -26,26 +30,29 @@ export const approveFaculty = async (req, res) => {
 
 export const getFacultyCount = async (req, res) => {
   try {
-    const count = await UserModel.countDocuments({ role: "Faculty" });
+    const faculty = await UserModel.find({ role: "Faculty" }).select("name email"); // only name & email
     res.status(200).json({
       success: true,
-      count,
+      count: faculty.length,
+      faculty,
     });
   } catch (error) {
-    console.error("Error fetching faculty count:", error);
+    console.error("Error fetching faculty list:", error);
     res.status(500).json({
       success: false,
-      message: "Error fetching faculty count",
+      message: "Error fetching faculty list",
     });
   }
 };
 
+
 export const getCoursesCount = async (req, res) => {
   try {
-    const count = await CourseModel.countDocuments();
+    const courses = await CourseModel.find().select('name code'); // get only name and code
     res.status(200).json({
       success: true,
-      count,
+      count: courses.length,
+      courses, // return the courses array
     });
   } catch (error) {
     console.error("Error fetching Courses count:", error);
@@ -200,5 +207,106 @@ export const getAssignedCourses = async (req, res) => {
     res.status(200).json({ success: true, assigned });
   } catch (error) {
     res.status(500).json({ message: "Error fetching assigned courses" });
+  }
+};
+
+
+
+export const generateAdminReport = async (req, res) => {
+  try {
+    const { facultyId } = req.params;
+
+    // 1️⃣ Fetch faculty with assigned courses
+    const faculty = await UserModel.findById(facultyId)
+      .populate("assignedCourses", "name code")
+      .lean();
+
+    if (!faculty) {
+      return res.status(404).json({ message: "Faculty not found" });
+    }
+
+    // 2️⃣ Create a new PDF document
+    const doc = new PDFDocument({ margin: 40 });
+    const filename = `Faculty_Report_${faculty.name}.pdf`;
+
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Type", "application/pdf");
+
+    // Pipe PDF to response
+    doc.pipe(res);
+
+    // 3️⃣ Faculty Header Info
+    doc.fontSize(20).text("Admin Report", { align: "center" });
+    doc.moveDown();
+    doc
+      .fontSize(12)
+      .text(`Name: ${faculty.name}`)
+      .text(`Email: ${faculty.email}`)
+      .text(`College ID: ${faculty.collegeId}`)
+      .moveDown();
+
+    // 4️⃣ For each assigned course
+    for (const course of faculty.assignedCourses) {
+      doc
+        .fontSize(16)
+        .text(`Course: ${course.name} (${course.code})`, { underline: true });
+      doc.moveDown(0.5);
+
+      // 5️⃣ Find enrolled students
+      const enrollments = await Enrollment.find({ course: course._id })
+        .populate("student", "name email")
+        .lean();
+
+      if (enrollments.length === 0) {
+        doc.fontSize(12).text("No students enrolled.\n");
+        continue;
+      }
+
+      // 6️⃣ For each student → get submissions & marks
+      for (const enroll of enrollments) {
+        const student = enroll.student;
+
+        // Find all submissions of this student for tasks in this course
+        const submissions = await Submission.find({ student: student._id })
+          .populate({
+            path: "task",
+            select: "title course",
+            match: { course: course._id },
+          })
+          .lean();
+
+        if (submissions.length === 0) continue;
+
+        // 7️⃣ For each submission → get evaluation marks
+        for (const sub of submissions) {
+          if (!sub.task) continue; // skip if task not in this course
+
+          const evaluation = await Evaluation.findOne({
+            submission: sub._id,
+          })
+            .populate("evaluator", "name")
+            .lean();
+
+          doc
+            .fontSize(12)
+            .text(`• Student: ${student.name} (${student.email})`);
+          doc.text(`  Task: ${sub.task.title}`);
+          doc.text(
+            `  Marks: ${evaluation?.marks ?? "Not Evaluated"} / ${
+              evaluation?.totalMarks ?? 100
+            }`
+          );
+          doc.text(`  Evaluator: ${evaluation?.evaluator?.name ?? "N/A"}`);
+          doc.moveDown(0.3);
+        }
+      }
+
+      doc.moveDown(1);
+    }
+
+    doc.end(); // finalize PDF
+  } catch (error) {
+    console.error("Error generating faculty report:", error);
+    res.status(500).json({ message: "Error generating faculty report" });
   }
 };

@@ -21,7 +21,10 @@ const parser = multer({
 export const uploadToCloudinary = (fileBuffer, publicId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: "pdf_uploads", resource_type: "raw", public_id: publicId },
+      { folder: "pdf_uploads",
+        resource_type: "raw",
+        public_id: `${publicId}.pdf`,
+        format: "pdf",  },
       (error, result) => {
         if (result) resolve(result);
         else reject(error);

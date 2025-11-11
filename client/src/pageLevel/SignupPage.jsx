@@ -53,7 +53,7 @@ const SignupPage = () =>
                 {
                     toast.success( resp.message );
 
-                    // 🧠 Save user info in state
+                    // Save user info in state
                     setUserAtom( {
                         name: resp.name,
                         email: resp.email,
@@ -62,7 +62,14 @@ const SignupPage = () =>
                         isApproved: resp.isApproved,
                     } );
 
-                    // ✅ Check approval before redirecting
+                    // ✅ If user is Admin, go directly to admin dashboard
+                    if ( selectedProfile === "Admin" )
+                    {
+                        navigate( "/admin-overview" );
+                        return;
+                    }
+
+                    // For non-admins, check approval
                     if ( !resp.isApproved )
                     {
                         if ( selectedProfile === "Faculty" )
@@ -78,11 +85,8 @@ const SignupPage = () =>
                         return;
                     }
 
-                    // ✅ Only approved users are redirected to dashboards
-                    if ( selectedProfile === "Admin" )
-                    {
-                        navigate( "/admin-overview" );
-                    } else if ( selectedProfile === "Faculty" )
+                    // Only approved non-admin users redirected to dashboards
+                    if ( selectedProfile === "Faculty" )
                     {
                         navigate( "/faculty-overview" );
                     } else if ( selectedProfile === "Evaluator" )
@@ -109,6 +113,7 @@ const SignupPage = () =>
                 setIsLoading( false );
             } );
     };
+
 
     return (
         <Container size={ 420 } my={ 40 }>

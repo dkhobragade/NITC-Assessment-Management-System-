@@ -1,5 +1,5 @@
 import express from 'express'
-import { approveFaculty, addCourse, getAllFaculty, getFacultyCount, getCoursesCount, assignCourse, getAvailableFaculties, getUnassignedCourses, getAssignedCourses } from '../controllers/adminControllers.js'
+import { approveFaculty, addCourse, getAllFaculty, getFacultyCount, getCoursesCount, assignCourse, getAvailableFaculties, getUnassignedCourses, getAssignedCourses, generateAdminReport } from '../controllers/adminControllers.js'
 import { protectRoute } from '../middlewares/authMiddleware.js'
 
 const router = express.Router()
@@ -15,6 +15,8 @@ router.post('/assign-course',protectRoute,assignCourse)
 router.get("/available-faculties", protectRoute,getAvailableFaculties);
 router.get("/unassigned-courses", protectRoute,getUnassignedCourses);
 router.get("/assigned-courses", protectRoute,getAssignedCourses);
+
+router.get("/generate-faculty-report/:facultyId", protectRoute, generateAdminReport);
 
 
 export default router

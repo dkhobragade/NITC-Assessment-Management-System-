@@ -2,6 +2,9 @@ import { uploadToCloudinary } from "../middlewares/upload.js";
 import TaskModel from "../models/TaskModel.js";
 import UserModel from "../models/UserModel.js";
 import XLSX from "xlsx";
+import PDFDocument from "pdfkit";
+import Submission from "../models/Submission.js";
+import Enrollment from "../models/Enrollment.js";
 
 // Faculty approving Evaluator/Student
 export const approveUserByFaculty = async ( req, res ) =>
@@ -338,6 +341,14 @@ const parseExcel = (buffer) => {
 
 
 export const uploadExcelAndMap = async (req, res) => {
+   if (!req.user) {
+    return res.status(401).json({ success: false, message: "User not authenticated" });
+  }
+
+  if (req.user.role !== "Faculty") {
+    return res.status(403).json({ success: false, message: "Only faculty can upload Excel" });
+  }
+
   try {
     const evalFile = req.files["evaluators"]?.[0];
     const stuFile = req.files["students"]?.[0];
@@ -411,3 +422,136 @@ export const randomMapEvaluator = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+export const saveSingleMapping = async (req, res) => {
+  try {
+    const { evaluatorId, studentId } = req.body;
+
+    if (!evaluatorId || !studentId) {
+      return res.status(400).json({ success: false, message: "Evaluator or student ID missing" });
+    }
+
+    const evaluator = await UserModel.findById(evaluatorId);
+    const student = await UserModel.findById(studentId);
+
+    if (!evaluator || !student) {
+      return res.status(404).json({ success: false, message: "Evaluator or student not found" });
+    }
+
+    // Save mapping if not already present
+    if (!evaluator.mappedStudents.includes(student._id)) {
+      evaluator.mappedStudents.push(student._id);
+      await evaluator.save();
+    }
+
+    return res.status(200).json({ success: true, message: "Mapping saved successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+
+export const generateFacultyReport = async (req, res) => {
+  try {
+    const facultyId = req.user._id; // from protectRoute (logged-in faculty)
+
+    // ✅ Find faculty details
+    const faculty = await UserModel.findById(facultyId)
+      .populate("assignedCourses", "name code description")
+      .lean();
+
+    if (!faculty) {
+      return res.status(404).json({ success: false, message: "Faculty not found" });
+    }
+
+    // ✅ Create new PDF
+    const doc = new PDFDocument({ margin: 50 });
+    const chunks = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${faculty.name}_report.pdf`
+      );
+      res.send(pdfBuffer);
+    });
+
+    // ✅ PDF Header
+    doc.fontSize(20).text("Faculty Report", { align: "center" });
+    doc.moveDown();
+
+    // ✅ Faculty Details
+    doc.fontSize(14).text(`Name: ${faculty.name}`);
+    doc.text(`Email: ${faculty.email}`);
+    doc.text(`Faculty ID: ${faculty._id}`);
+    doc.moveDown();
+
+    // ✅ For each assigned course
+    for (const course of faculty.assignedCourses) {
+      doc.fontSize(16).text(`Course: ${course.name} (${course.code})`);
+      doc.fontSize(12).text(`Description: ${course.description || "N/A"}`);
+      doc.moveDown(0.5);
+
+      // 🧩 Get Enrolled Students
+      const enrollments = await Enrollment.find({ course: course._id })
+        .populate("student", "name email")
+        .lean();
+
+      if (enrollments.length === 0) {
+        doc.text("No students enrolled.\n");
+        continue;
+      }
+
+      doc.text(`Total Students: ${enrollments.length}`);
+      doc.moveDown(0.5);
+
+      // 🧩 Get tasks and evaluations per student
+      for (const { student } of enrollments) {
+        doc.font("Helvetica-Bold").text(`👤 Student: ${student.name} (${student.email})`);
+        doc.font("Helvetica").moveDown(0.2);
+
+        const submissions = await Submission.find({ student: student._id })
+          .populate({
+            path: "task",
+            match: { course: course._id },
+            select: "title",
+          })
+          .lean();
+
+        if (!submissions.length) {
+          doc.text("   - No submissions found.\n");
+          continue;
+        }
+
+        for (const sub of submissions) {
+          if (!sub.task) continue; // task not from this course
+
+          const evalData = await EvaluationModel.findOne({ submission: sub._id }).lean();
+          const marks = evalData ? `${evalData.marks}/${evalData.totalMarks}` : "Not evaluated";
+
+          doc.text(`   • Task: ${sub.task.title}`);
+          doc.text(`     Marks: ${marks}`);
+          if (evalData?.remarks) doc.text(`     Remarks: ${evalData.remarks}`);
+          doc.moveDown(0.2);
+        }
+        doc.moveDown(0.5);
+      }
+
+      doc.moveDown(1);
+      doc.text("----------------------------------------");
+      doc.moveDown(1);
+    }
+
+    doc.end();
+  } catch (error) {
+    console.error("Error generating faculty report:", error);
+    res.status(500).json({ success: false, message: "Failed to generate report" });
+  }
+};
+
+
