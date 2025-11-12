@@ -20,17 +20,10 @@ const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (
-        !origin ||
-        origin.includes("localhost") ||
-        origin.endsWith(".vercel.app")
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "https://nitc-assessment-management-system.vercel.app",
+      "http://localhost:5173"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
