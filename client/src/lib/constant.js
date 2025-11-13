@@ -1,7 +1,8 @@
-export const BASEURL = "http://localhost:5001/api/"
+// export const BASEURL = "http://localhost:5001/api/"
+export const BASEURL = "https://nitc-assessment-management-system.onrender.com/api/"
 
 export const adminNavbar=[
-        { link: '/admin-overview', label: 'Overview'  },
+        { link: '/admin-overview',  label: 'Overview'  },
         { link: '/admin-manage-faculty', label: 'Manage Faculty'  },
         { link: '/admin-add-course', label: 'Add Course'  },
         { link: '/admin-assign-course', label: 'Assign Course'  },
