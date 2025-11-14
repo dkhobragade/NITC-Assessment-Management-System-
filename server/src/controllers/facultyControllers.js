@@ -5,6 +5,7 @@ import XLSX from "xlsx";
 import PDFDocument from "pdfkit";
 import Submission from "../models/Submission.js";
 import Enrollment from "../models/Enrollment.js";
+import Evaluation from "../models/Evaluation.js";
 
 export const approveUserByFaculty = async ( req, res ) =>
 {
@@ -543,7 +544,7 @@ export const generateFacultyReport = async ( req, res ) =>
         {
           if ( !sub.task ) continue;
 
-          const evalData = await EvaluationModel.findOne( { submission: sub._id } ).lean();
+          const evalData = await Evaluation.findOne( { submission: sub._id } ).lean();
           const marks = evalData ? `${ evalData.marks }/${ evalData.totalMarks }` : "Not evaluated";
 
           doc.text( `   • Task: ${ sub.task.title }` );
